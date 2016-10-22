@@ -6,15 +6,16 @@ import java.awt.Image;
 import java.awt.Panel;
 import java.awt.Toolkit;
 import java.io.File;
+import java.io.Serializable;
 
 import javax.imageio.ImageIO;
 
-public class Bomb {
+public class Bomb implements Serializable {
   int x;
   int y;
   boolean live = true;
   MainPanel panel;
-  public static final int TIMES = 4;
+  public static final int TIMES = 8;
   Image image1,image2,image3,image4;
   
   /*Image image1 = Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bomb1.png"));

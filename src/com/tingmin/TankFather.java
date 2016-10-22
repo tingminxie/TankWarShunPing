@@ -4,14 +4,17 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.*;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
+import java.io.Serializable;
 
 
-public class TankFather implements Runnable {
+public class TankFather implements Runnable ,Serializable {
 
   protected int x;
   protected int y;
   protected int oldX;
   protected int oldY;
+  protected boolean pause = false;
 
   protected MainPanel panel;
 
@@ -183,12 +186,12 @@ public class TankFather implements Runnable {
     if ((x + 30) >800) {
       x = 770;
     }
-    if ((y + 55) >600) {
-      y = 545;
+    if ((y + 70) >600) {
+      y = 530;
     }
 //TODO
     this.collideWith(panel.enemyTanks);
-    if(MainPanel.TANK_LIFE > 0) {
+    if(panel.TANK_LIFE > 0) {
       this.collideWith(panel.myTanks.get(0));
     }
   }
@@ -250,6 +253,7 @@ public class TankFather implements Runnable {
       collideWith(tmp);
     }
   }
+
 }
   
     

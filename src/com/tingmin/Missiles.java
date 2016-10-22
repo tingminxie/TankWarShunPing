@@ -3,11 +3,12 @@ package com.tingmin;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.io.Serializable;
 import java.util.Vector;
 
 import com.tingmin.TankFather.Direction;
 
-public class Missiles implements Runnable {
+public class Missiles implements Runnable, Serializable {
   int x;
   int y;
   int speed = 5;
@@ -74,26 +75,24 @@ public class Missiles implements Runnable {
     }
   }
   public void run() {
-    while(true) {
+    while(live) {
       try {
         Thread.sleep(50);
       } catch(Exception e) {
         e.printStackTrace();
       }
       move();
-      if(x<0 || x>800 || y<0 || y>600) {
-        live = false;
-          break;
-        }
     }
     
     
   }
   public void draw(Graphics g) {
+    if (!live){
+      return;
+    } 
     Color c = g.getColor();
     g.setColor(Color.black);
     g.fillOval(x,y,WIDTH,HEIGHT);
-//    g.drawRect(x,y,WIDTH,HEIGHT);
     g.setColor(c);
   }
   public void move() {
@@ -110,8 +109,9 @@ public class Missiles implements Runnable {
       case LEFT:
         x-=speed;
         break;
-      }
-      
-  }
-  
+    }
+    if(x<=0 || (x+5)>=800 || y<=0 || (y+5)>=600) {
+      live = false;
+    }
+ }
 }
