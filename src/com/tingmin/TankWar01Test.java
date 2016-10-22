@@ -1,3 +1,7 @@
+/* make sure that each missile is a thread.
+ * main panel is also a thread for repaint itself.
+ * myTank can fire missiles when moving around.//not done
+ */
 package com.tingmin;
 import javax.swing.*;
 
@@ -30,31 +34,18 @@ public class TankWar01Test extends JFrame {
 		this.setSize(WIDTH, HEIGHT);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
-    new Thread(new MyThread()).start();
+    new Thread(p).start();
 	}
   private class MyKeyMonitor extends KeyAdapter {
     public void keyPressed(KeyEvent e) {
       p.keyPressed(e);
     }
   } 
-  class MyThread implements Runnable {
-	  public void run() {
-      while(true){
-      try{
-        Thread.sleep(500);
-        p.repaint();
-      }catch (Exception e) {
-        e.printStackTrace();
-      }
-      }
-	  }
-	}
 }
 
-class MainPanel extends JPanel {
+class MainPanel extends JPanel implements Runnable {
   TankFather myTank;
   Vector<TankFather> tanks = new Vector<TankFather>();
-  Vector<Missiles> missiles = new Vector<Missiles>();
 	private static final int WIDTH = 800;
 	private static final int HEIGHT = 600;
 
@@ -66,6 +57,16 @@ class MainPanel extends JPanel {
 //    this.setBackground(Color.green);
     
 	}
+	  public void run() {
+      while(true){
+        try{
+          Thread.sleep(50);
+        }catch (Exception e) {
+          e.printStackTrace();
+        }
+        repaint();
+      }
+	  }
 	public void paint(Graphics g){
 		Color c = g.getColor();
 		g.setColor(Color.green);
@@ -75,8 +76,8 @@ class MainPanel extends JPanel {
       tanks.get(i).draw(g);
     }
 	  g.setColor(c);
-    for(int i=0;i<missiles.size();i++) {
-      missiles.get(i).draw(g);
+    for(int i=0;i<myTank.getMissiles().size();i++) {
+      myTank.getMissiles().get(i).draw(g);
     }
 	}
 /*
@@ -104,10 +105,11 @@ class MainPanel extends JPanel {
       myTank.setDir(Direction.LEFT);
       myTank.move();
       break;
-    case KeyEvent.VK_SPACE:
-      myTank.fire();
-      break;
     }
+    if(keyCode == KeyEvent.VK_SPACE) {
+      myTank.fire();
+    }
+    
 //    repaint();
   }
 }

@@ -5,11 +5,12 @@ import java.awt.Graphics;
 
 import com.tingmin.TankFather.Direction;
 
-public class Missiles {
+public class Missiles implements Runnable {
 	int x;
 	int y;
-  int speed = 100;
+  int speed = 50;
 	Direction dir;
+  private boolean Live = true;
 	public int getX() {
 		return x;
 	}
@@ -27,44 +28,40 @@ public class Missiles {
 		this.y = y;
 		this.dir = dir;
 	}
+  public void run() {
+    while(true) {
+      try {
+        Thread.sleep(50);
+      } catch(Exception e) {
+        e.printStackTrace();
+      }
+      switch(dir) {
+      case UP:
+        y-=speed;
+        break;
+      case R:
+        x+=speed;
+        break;
+      case DOWN:
+        y+=speed;
+        break;
+      case LEFT:
+        x-=speed;
+        break;
+      }
+      System.out.println("x: " + x + " y: " + y);
+      if(x<0 || x>800 || y<0 || y>600) {
+        break;
+      }
+    }
+    
+    
+  }
   public void draw(Graphics g) {
     Color c = g.getColor();
     g.setColor(Color.black);
     g.fillOval(x,y,5,5);
     g.setColor(c);
-    move();
-  }
-  public void move() {
-    switch(dir) {
-    case UP:
-      y-=speed;
-      break;
-    case R:
-      x+=speed;
-      break;
-    case DOWN:
-      y+=speed;
-      break;
-    case LEFT:
-      x-=speed;
-      break;
-    }
-  }
-  public void adjustFirePoint() {
-    switch(dir) {
-    case UP:
-      y -= 20;
-      break;
-    case R:
-      x += 20;
-      break;
-    case DOWN:
-      y += 20;
-      break;
-    case LEFT:
-      x -= 20;
-      break;
-    } 
   }
 	
 }

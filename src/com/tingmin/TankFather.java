@@ -2,6 +2,7 @@ package com.tingmin;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.*;
 
 
 public class TankFather {
@@ -15,7 +16,11 @@ public class TankFather {
   enum OwnColor {RED,BLUE};
   protected OwnColor ownColor;
   int speed = 5;
+  Vector<Missiles> missiles = new Vector<Missiles>();
 
+	public Vector<Missiles> getMissiles() {
+	return missiles;
+}
 	public TankFather(int x,int y,Direction dir, Type type,OwnColor ownColor) {
 		this.x = x;
 		this.y = y;
@@ -136,13 +141,33 @@ class MyTank extends TankFather {
       break;
     }
   }
-//TODO create class Missiles
+
   public Missiles fire() {
-    int x = this.x + 7;
-    int y = this.y + 12;
+
+    int x = this.x;
+    int y = this.y;
+    
+    switch(dir) {
+    case UP:
+      x += 7;
+      y -= 8;
+      break;
+    case R:
+      x += 27;
+      y += 12;
+      break;
+    case DOWN:
+      x += 7;
+      y += 32;
+      break;
+    case LEFT:
+      x -= 13;
+      y += 12;
+      break;
+    } 
     Missiles m = new Missiles(x,y,dir);
-    m.adjustFirePoint();
-    panel.missiles.add(m);
+    missiles.add(m);
+    new Thread(m).start();
     return m;
     
   }
