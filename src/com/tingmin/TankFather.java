@@ -7,20 +7,26 @@ import java.util.*;
 
 public class TankFather {
 
-	int x;
-	int y;
-  enum Direction {UP,RU,R,RD,DOWN,LD,LEFT,LU};
+	protected int x;
+	protected int y;
+  enum Direction {UP,R,DOWN,LEFT};
   protected Direction dir;
 	enum Type {GOOD,BAD};
 	protected Type type;
   enum OwnColor {RED,BLUE};
   protected OwnColor ownColor;
-  int speed = 5;
-  Vector<Missiles> missiles = new Vector<Missiles>();
+  protected int speed = 3;
+  protected boolean live = true;
+  protected Vector<Missiles> missiles = new Vector<Missiles>();
 
 	public Vector<Missiles> getMissiles() {
 	return missiles;
 }
+
+public void setMissiles(Vector<Missiles> missiles) {
+	this.missiles = missiles;
+}
+
 	public TankFather(int x,int y,Direction dir, Type type,OwnColor ownColor) {
 		this.x = x;
 		this.y = y;
@@ -28,6 +34,7 @@ public class TankFather {
     this.type = type;
     this.ownColor = ownColor;
 	}
+
 	public Type getType() {
 	return type;
   }
@@ -68,13 +75,40 @@ public class TankFather {
   }
 	
 }
-class MyTank extends TankFather {
+class MyTank extends TankFather implements Runnable {
 	private MainPanel panel;
+  private static Random r = new Random();
+  private int step = 5;
 
 	public MyTank(int x, int y, Direction dir, Type type, OwnColor ownColor, MainPanel panel) {
 		super(x,y,dir,type,ownColor);
 		this.panel = panel;
 	}
+  
+  public void run() { 
+    while(live) {
+      try {
+        Thread.sleep(50);
+      }catch(Exception e) {
+        e.printStackTrace();
+      }
+      randomDir();
+      move();//TODO
+      fire();//TODO
+
+    }
+  }
+  //TODO
+  public void randomDir () { 
+    Direction[] dirs = Direction.values();
+    if(step == 0) {
+      step = r.nextInt(10) + 5;
+      int n = r.nextInt(dirs.length-1);
+      dir = dirs[n];
+    }else {
+    step--;
+    }
+  }
 
 	public void draw(Graphics g) {//TODO 8 pictures
 		Color c = g.getColor();
@@ -139,6 +173,18 @@ class MyTank extends TankFather {
     case LEFT:
       x -= speed;
       break;
+    }
+    if (x<0) {
+    	x = 0;
+    }
+    if (y<0) {
+    	y = 0;
+    }
+    if ((x + 30) >800) {
+    	x = 770;
+    }
+    if ((y + 55) >600) {
+    	y = 545;
     }
   }
 

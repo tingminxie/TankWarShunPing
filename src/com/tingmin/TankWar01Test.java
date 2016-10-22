@@ -1,5 +1,4 @@
-/* make sure that each missile is a thread.
- * main panel is also a thread for repaint itself.
+/* make sure that each enemytank is a thread
  * myTank can fire missiles when moving around.//not done
  */
 package com.tingmin;
@@ -44,16 +43,20 @@ public class TankWar01Test extends JFrame {
 }
 
 class MainPanel extends JPanel implements Runnable {
-  TankFather myTank;
-  Vector<TankFather> tanks = new Vector<TankFather>();
+  MyTank myTank;
+  Vector<MyTank> tanks = new Vector<MyTank>();
 	private static final int WIDTH = 800;
 	private static final int HEIGHT = 600;
 
 	public MainPanel() {
-		myTank = new MyTank(300,300,Direction.UP,Type.GOOD,OwnColor.RED,this);
-    tanks.add(new MyTank(100,100,Direction.UP,Type.BAD,OwnColor.BLUE,this));
-    tanks.add(new MyTank(200,100,Direction.UP,Type.BAD,OwnColor.BLUE,this));
-    tanks.add(new MyTank(300,100,Direction.UP,Type.BAD,OwnColor.BLUE,this));
+//TODO
+		myTank = new MyTank(300,300,Direction.DOWN,Type.GOOD,OwnColor.RED,this);
+    for(int i=0;i<3;i++) {
+      MyTank tmp = new MyTank(100*(i+1),100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this); 
+      tanks.add(tmp);
+      new Thread(tmp).start();
+    }
+    
 //    this.setBackground(Color.green);
     
 	}
@@ -74,11 +77,26 @@ class MainPanel extends JPanel implements Runnable {
     myTank.draw(g);
     for (int i=0;i<tanks.size();i++){
       tanks.get(i).draw(g);
+      for(int j=0;j<tanks.get(i).getMissiles().size();j++){
+    	  Missiles m = tanks.get(i).getMissiles().get(j);
+    	  if(m.isLive()) {
+    		  m.draw(g); 
+    	  }else {
+    		  tanks.get(i).getMissiles().remove(j);
+    	  }
+      }
     }
-	  g.setColor(c);
+	  
     for(int i=0;i<myTank.getMissiles().size();i++) {
-      myTank.getMissiles().get(i).draw(g);
+    	Missiles m = myTank.getMissiles().get(i);
+    	if(m.isLive()) {
+    		m.draw(g);
+    	}else {
+    		myTank.getMissiles().remove(i);
+    	}
     }
+    
+    	g.setColor(c);
 	}
 /*
   public void update(Graphics g) {

@@ -10,7 +10,13 @@ public class Missiles implements Runnable {
 	int y;
   int speed = 50;
 	Direction dir;
-  private boolean Live = true;
+  private boolean live = true;
+	public boolean isLive() {
+	return live;
+}
+public void setLive(boolean live) {
+	this.live = live;
+}
 	public int getX() {
 		return x;
 	}
@@ -35,7 +41,23 @@ public class Missiles implements Runnable {
       } catch(Exception e) {
         e.printStackTrace();
       }
-      switch(dir) {
+      move();
+      if(x<0 || x>800 || y<0 || y>600) {
+    	  live = false;
+          break;
+        }
+    }
+    
+    
+  }
+  public void draw(Graphics g) {
+    Color c = g.getColor();
+    g.setColor(Color.black);
+    g.fillOval(x,y,5,5);
+    g.setColor(c);
+  }
+  public void move() {
+	  switch(dir) {
       case UP:
         y-=speed;
         break;
@@ -49,19 +71,7 @@ public class Missiles implements Runnable {
         x-=speed;
         break;
       }
-      System.out.println("x: " + x + " y: " + y);
-      if(x<0 || x>800 || y<0 || y>600) {
-        break;
-      }
-    }
-    
-    
-  }
-  public void draw(Graphics g) {
-    Color c = g.getColor();
-    g.setColor(Color.black);
-    g.fillOval(x,y,5,5);
-    g.setColor(c);
+      
   }
 	
 }
