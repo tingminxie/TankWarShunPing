@@ -61,7 +61,7 @@ public class Missiles implements Runnable {
     if (this.isLive() && t.isLive() && this.getRect().intersects(t.getRect())) {
       this.setLive(false);
       t.setLive(false);
-      Bomb b = new Bomb(t.x,t.y,this.panel);//TODO
+      Bomb b = new Bomb(t.x,t.y,this.panel);
       this.panel.bombs.add(b);
       return true;
     }
@@ -93,7 +93,7 @@ public class Missiles implements Runnable {
     Color c = g.getColor();
     g.setColor(Color.black);
     g.fillOval(x,y,WIDTH,HEIGHT);
-    g.drawRect(x,y,WIDTH,HEIGHT);//TODO
+//    g.drawRect(x,y,WIDTH,HEIGHT);
     g.setColor(c);
   }
   public void move() {

@@ -27,10 +27,10 @@ public class Bomb {
     this.y = y;
     this.panel = panel;
     try{
-      image1 = ImageIO.read(new File("/home/tingmin/Documents/bomb1.png"));
-      image2 = ImageIO.read(new File("/home/tingmin/Documents/bomb2.png"));
-      image3 = ImageIO.read(new File("/home/tingmin/Documents/bomb3.png"));
-      image4 = ImageIO.read(new File("/home/tingmin/Documents/bomb4.png"));
+      image1 = ImageIO.read(new File("bomb1.png"));
+      image2 = ImageIO.read(new File("bomb2.png"));
+      image3 = ImageIO.read(new File("bomb3.png"));
+      image4 = ImageIO.read(new File("bomb4.png"));
       
     }catch(Exception e) {
       e.printStackTrace();

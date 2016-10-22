@@ -10,6 +10,9 @@ public class TankFather implements Runnable {
 
   protected int x;
   protected int y;
+  protected int oldX;
+  protected int oldY;
+
   protected MainPanel panel;
 
   enum Direction {UP,R,DOWN,LEFT};
@@ -36,6 +39,8 @@ public class TankFather implements Runnable {
   public TankFather(int x, int y, Direction dir, Type type,OwnColor ownColor, MainPanel panel) {
     this(x,y,dir,type,ownColor);
     this.panel = panel;
+    this.oldX = x;
+    this.oldY = y;
   }
 
   public boolean isLive() {
@@ -151,7 +156,10 @@ public class TankFather implements Runnable {
 //    }
     g.setColor(c);
   }
+
   public void move() {
+    this.oldX = x;
+    this.oldY = y;
     switch (dir) {
     case UP:
       y -= speed;
@@ -178,6 +186,11 @@ public class TankFather implements Runnable {
     if ((y + 55) >600) {
       y = 545;
     }
+//TODO
+    this.collideWith(panel.enemyTanks);
+    if(MainPanel.TANK_LIFE > 0) {
+      this.collideWith(panel.myTanks.get(0));
+    }
   }
 
   public Missiles fire() {
@@ -203,63 +216,41 @@ public class TankFather implements Runnable {
       y += 12;
       break;
     } 
-    Missiles m = new Missiles(x,y,dir,this.panel);//TODO
+    Missiles m = new Missiles(x,y,dir,this.panel);
     missiles.add(m);
     new Thread(m).start();
     return m;
     
   }
+
+  public boolean collideWith(TankFather t) {
+    if (this.type == Type.GOOD) { 
+      if (this.isLive() && t.isLive() && this != t && this.getRect().intersects(t.getRect())) {
+        this.x = this.oldX;
+        this.y = this.oldY;
+        t.x = t.oldX;
+        t.y = t.oldY;
+        return true;
+      }
+    }else {
+      if(this.isLive() && t.isLive() && this != t && this.getRect().intersects(t.getRect())) {
+        this.x = this.oldX;
+        this.y = this.oldY;
+        t.x = t.oldX;
+        t.y = t.oldY;
+        return true;
+      }
+    }
+    return false;
+  }
+ 
+  public void collideWith(Vector<EnemyTank> enemyTanks) {
+    for (int i=0;i<enemyTanks.size();i++) {
+      TankFather tmp = enemyTanks.get(i);
+      collideWith(tmp);
+    }
+  }
+}
   
     
   
-}
-/*
-class MyTank extends TankFather {
-  MainPanel panel;
-  public MyTank(int x, int y, Direction dir, Type type,OwnColor ownColor, MainPanel panel) {
-    super(x,y,dir,type,ownColor);
-    this.panel = panel;
-  }
-}*/
-
-class EnemyTank extends TankFather implements Runnable {  /////////////////////////////////////////////
-  private static Random r = new Random();
-  private int step = 5;
-
-  public EnemyTank(int x, int y, Direction dir, Type type,OwnColor ownColor, MainPanel panel) {
-    super(x,y,dir,type,ownColor);
-    this.panel = panel;
-  }
-  /////////////////////////////////////////
-  public void run() { 
-    while(live) {
-      try {
-        Thread.sleep(50);
-      }catch(Exception e) {
-        e.printStackTrace();
-      }
-      randomDir();
-      move();
-    }
-  }
-  /////////////////////////////////////////
-  public void randomDir () { 
-    Direction[] dirs = Direction.values();
-    if(step == 0) {
-      step = r.nextInt(10) + 5;
-      int n = r.nextInt(dirs.length-1);
-      dir = dirs[n];
-      fire();//TODO
-    }else {
-    step--;
-    }
-  }
-
-//  public Missiles fire() {
-//    if (missiles.size()<3) {
-//      return super.fire();
-//    }
-//    return null;
-//  }
-  
-}

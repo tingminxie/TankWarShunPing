@@ -1,8 +1,8 @@
-/* missile disappear when hit with each other
- * tanks move within the panel
- * fire tank
- * myTank can fire missiles when moving around.
- * add class Bomb,make bomb work
+/* 1. make a Vector for myTank.
+ * 2. add one new myTank when old myTank is dead, and revive from the place where 
+ * myTank was killed. 
+ * 3. maximum 5 times of life of myTank.
+ * 4. tank collide with each other.
  */
 package com.tingmin;
 import javax.swing.*;
@@ -44,27 +44,26 @@ public class TankWar01Test extends JFrame {
     }
   } 
 }
-
+////////////////////////////////////////////////////////////////////////////////////////////
 class MainPanel extends JPanel implements Runnable {
-//  Vector<TankFather> myTanks = new Vector<TankFather>(); 
-  TankFather myTank;
+
+  Vector<TankFather> myTanks = new Vector<TankFather>(); 
   Vector<EnemyTank> enemyTanks = new Vector<EnemyTank>();
   Vector<Bomb>  bombs = new Vector<Bomb>();
+  static int TANK_LIFE = 5;
   private static final int WIDTH = 800;
   private static final int HEIGHT = 600;
 
   public MainPanel() {
-//TODO
-    myTank = new TankFather(500,300,Direction.DOWN,Type.GOOD,OwnColor.RED,this);
+    myTanks.add(new TankFather(500,300,Direction.DOWN,Type.GOOD,OwnColor.RED,this));
     for(int i=0;i<3;i++) {
     EnemyTank tmp = new EnemyTank(100*(i+1),100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this); 
         enemyTanks.add(tmp);
         new Thread(tmp).start();
     }
-    
 //    this.setBackground(Color.green);
-    
   }
+
     public void run() {
       while(true){
         try{
@@ -75,29 +74,43 @@ class MainPanel extends JPanel implements Runnable {
         repaint();
       }
     }
+
   public void paint(Graphics g){
+
     Color c = g.getColor();
     g.setColor(Color.green);
     g.fillRect(0, 0, WIDTH, HEIGHT);
-    
-    if (myTank.isLive()) {
-      myTank.draw(g);
-      for(int i=0;i<myTank.getMissiles().size();i++) {
-        Missiles m = myTank.getMissiles().get(i);
-        if (enemyTanks.size() != 0) {
-           m.hitTanks(enemyTanks);
-           for(int j=0;j<enemyTanks.size();j++) {
-             Vector<Missiles> missiles = enemyTanks.get(j).getMissiles();
-             m.hitMissile(missiles);//TODO
-           }    
+
+    if (TANK_LIFE>0) {
+      TankFather myTank = myTanks.get(0);
+      if (myTank.isLive()) {
+        myTank.draw(g);
+        for(int i=0;i<myTank.getMissiles().size();i++) {
+          Missiles m = myTank.getMissiles().get(i);
+          if (enemyTanks.size() != 0) {
+             m.hitTanks(enemyTanks);
+             for(int j=0;j<enemyTanks.size();j++) {
+               Vector<Missiles> missiles = enemyTanks.get(j).getMissiles();
+               m.hitMissile(missiles);
+             }    
+          }
+          if(!m.isLive()) {
+             myTank.getMissiles().remove(m);
+          } else {
+             m.draw(g);
+          }
         }
-        if(!m.isLive()) {
-           myTank.getMissiles().remove(m);
-        } else {
-           m.draw(g);
-        }
+      }else{
+        myTanks.add(new TankFather(myTank.oldX,myTank.oldY,Direction.DOWN,Type.GOOD,OwnColor.RED,this));
+        myTanks.remove(0);
+        TANK_LIFE--;
       }
+    }  else{ 
+      g.setColor(Color.red);
+      g.setFont(new Font("Times New Roman",Font.BOLD,50));
+      g.drawString("Game Over!",300,300);
     }
+
     for (int i=0;i<enemyTanks.size();i++){
       TankFather tmp = enemyTanks.get(i);
       if (!tmp.isLive()){
@@ -108,9 +121,9 @@ class MainPanel extends JPanel implements Runnable {
           Missiles m = tmp.getMissiles().get(r);
           for(int j=0;j<enemyTanks.size();j++){
             Vector<Missiles> missiles = enemyTanks.get(j).getMissiles();
-            m.hitMissile(missiles);//TODO
+            m.hitMissile(missiles);
           }
-          m.hitTank(myTank);
+          m.hitTank(myTanks.get(0));
           if(!m.isLive()) {
             tmp.getMissiles().remove(m);
           }else {
@@ -127,30 +140,32 @@ class MainPanel extends JPanel implements Runnable {
     
     g.setColor(c);
   }
+
   public void keyPressed(KeyEvent e) {
     int keyCode = e.getKeyCode();
-    switch (keyCode) {
-    case KeyEvent.VK_UP:
-      myTank.setDir(Direction.UP);
-      myTank.move();
-      break;
-    case KeyEvent.VK_RIGHT:
-      myTank.setDir(Direction.R);
-      myTank.move();
-      break;
-    case KeyEvent.VK_DOWN:
-      myTank.setDir(Direction.DOWN);
-      myTank.move();
-      break;
-    case KeyEvent.VK_LEFT:
-      myTank.setDir(Direction.LEFT);
-      myTank.move();
-      break;
-    }
-    if(keyCode == KeyEvent.VK_SPACE) {
-      myTank.fire();
-    }
-    
-//    repaint();
+    if (TANK_LIFE>0) {
+      TankFather myTank = myTanks.get(0);
+      switch (keyCode) {
+      case KeyEvent.VK_UP:
+        myTank.setDir(Direction.UP);
+        myTank.move();
+        break;
+      case KeyEvent.VK_RIGHT:
+        myTank.setDir(Direction.R);
+        myTank.move();
+        break;
+      case KeyEvent.VK_DOWN:
+        myTank.setDir(Direction.DOWN);
+        myTank.move();
+        break;
+      case KeyEvent.VK_LEFT:
+        myTank.setDir(Direction.LEFT);
+        myTank.move();
+        break;
+      }
+      if(keyCode == KeyEvent.VK_SPACE) {
+        myTank.fire();
+      }
+   } 
   }
 }
