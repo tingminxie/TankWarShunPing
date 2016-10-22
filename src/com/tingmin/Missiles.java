@@ -2,15 +2,20 @@ package com.tingmin;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.util.Vector;
 
 import com.tingmin.TankFather.Direction;
 
 public class Missiles implements Runnable {
 	int x;
 	int y;
-  int speed = 50;
+  int speed = 5;
 	Direction dir;
   private boolean live = true;
+  public static final int WIDTH = 5;
+  public static final int HEIGHT = 5;
+
 	public boolean isLive() {
 	return live;
 }
@@ -34,6 +39,32 @@ public void setLive(boolean live) {
 		this.y = y;
 		this.dir = dir;
 	}
+  public Rectangle getRect() {
+    return new Rectangle(x,y,WIDTH,HEIGHT);
+  }
+  public boolean hitMissile(Missiles m) {
+      if(this.isLive() && m.isLive() && this != m && this.getRect().intersects(m.getRect())) {
+        this.setLive(false);
+        m.setLive(false);
+        return true;
+      }
+    
+    return false;
+  }
+  public boolean hitTank(TankFather t) {
+    if (this.isLive() && t.isLive() && this.getRect().intersects(t.getRect())) {
+      this.setLive(false);
+      t.setLive(false);
+      return true;
+    }
+    return false;
+  }
+  public void hitTanks(Vector<TankFather> tanks) {
+    for (int i=0;i<tanks.size();i++) {
+      TankFather tmp = tanks.get(i);
+      hitTank(tmp);
+    }
+  }
   public void run() {
     while(true) {
       try {
@@ -53,7 +84,8 @@ public void setLive(boolean live) {
   public void draw(Graphics g) {
     Color c = g.getColor();
     g.setColor(Color.black);
-    g.fillOval(x,y,5,5);
+    g.fillOval(x,y,WIDTH,HEIGHT);
+    g.drawRect(x,y,WIDTH,HEIGHT);//TODO
     g.setColor(c);
   }
   public void move() {

@@ -3,29 +3,42 @@ package com.tingmin;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.*;
+import java.awt.Rectangle;
 
 
-public class TankFather {
+public class TankFather implements Runnable {
 
 	protected int x;
 	protected int y;
+
   enum Direction {UP,R,DOWN,LEFT};
   protected Direction dir;
+
 	enum Type {GOOD,BAD};
 	protected Type type;
+
   enum OwnColor {RED,BLUE};
+
   protected OwnColor ownColor;
   protected int speed = 3;
   protected boolean live = true;
   protected Vector<Missiles> missiles = new Vector<Missiles>();
 
+  public boolean isLive() {
+    return live;
+  }
+
+  public void setLive(boolean live) {
+    this.live = live;
+  }
+
 	public Vector<Missiles> getMissiles() {
 	return missiles;
 }
 
-public void setMissiles(Vector<Missiles> missiles) {
-	this.missiles = missiles;
-}
+  public void setMissiles(Vector<Missiles> missiles) {
+    this.missiles = missiles;
+  }
 
 	public TankFather(int x,int y,Direction dir, Type type,OwnColor ownColor) {
 		this.x = x;
@@ -34,6 +47,24 @@ public void setMissiles(Vector<Missiles> missiles) {
     this.type = type;
     this.ownColor = ownColor;
 	}
+  public void run() {
+
+  }
+
+  public Rectangle getRect() {
+	 Rectangle r = null;
+    switch (dir) {
+    case UP:
+    case DOWN:
+      r = new Rectangle(x,y,20,30);
+      break;
+    case LEFT:
+    case R:
+      r = new Rectangle(x,y,30,20);
+      break;
+    }
+    return r;
+  }
 
 	public Type getType() {
 	return type;
@@ -65,51 +96,6 @@ public void setMissiles(Vector<Missiles> missiles) {
 	public void setY(int y) {
 		this.y = y;
 	}
-	public void draw(Graphics g) {
-		
-	}
-  public void move() {
-  }
-  public Missiles fire() {
-	  return null;
-  }
-	
-}
-class MyTank extends TankFather implements Runnable {
-	private MainPanel panel;
-  private static Random r = new Random();
-  private int step = 5;
-
-	public MyTank(int x, int y, Direction dir, Type type, OwnColor ownColor, MainPanel panel) {
-		super(x,y,dir,type,ownColor);
-		this.panel = panel;
-	}
-  
-  public void run() { 
-    while(live) {
-      try {
-        Thread.sleep(50);
-      }catch(Exception e) {
-        e.printStackTrace();
-      }
-      randomDir();
-      move();//TODO
-      fire();//TODO
-
-    }
-  }
-  //TODO
-  public void randomDir () { 
-    Direction[] dirs = Direction.values();
-    if(step == 0) {
-      step = r.nextInt(10) + 5;
-      int n = r.nextInt(dirs.length-1);
-      dir = dirs[n];
-    }else {
-    step--;
-    }
-  }
-
 	public void draw(Graphics g) {//TODO 8 pictures
 		Color c = g.getColor();
 //    if (type == Type.GOOD) {
@@ -158,7 +144,6 @@ class MyTank extends TankFather implements Runnable {
 //		}
 		g.setColor(c);
 	}
-		
   public void move() {
     switch (dir) {
     case UP:
@@ -218,73 +203,57 @@ class MyTank extends TankFather implements Runnable {
     
   }
 	
+		
+	
 }
-/*
-class EnemyTank extends TankFather {
+class MyTank extends TankFather {
 	private MainPanel panel;
+
+	public MyTank(int x, int y, Direction dir, Type type,OwnColor ownColor, MainPanel panel) {
+		super(x,y,dir,type,ownColor);
+		this.panel = panel;
+	}
+}
+
+class EnemyTank extends TankFather implements Runnable {
+	private MainPanel panel;
+  private static Random r = new Random();
+  private int step = 5;
 
 	public EnemyTank(int x, int y, Direction dir, Type type,OwnColor ownColor, MainPanel panel) {
 		super(x,y,dir,type,ownColor);
 		this.panel = panel;
 	}
+  public void run() { 
+    while(live) {
+      try {
+        Thread.sleep(50);
+      }catch(Exception e) {
+        e.printStackTrace();
+      }
+      randomDir();
+      move();//TODO
 
-	public void draw(Graphics g) {//TODO 8 pictures
-		Color c = g.getColor();
-//    if (type == Type.BAD) {
-    g.setColor(Color.blue);
-		switch (dir) {
-		case UP:
-			g.fill3DRect(x, y, 5, 30,true);
-			g.draw3DRect(x+5, y+5, 10, 20,true);
-			g.fill3DRect(x+15, y, 5, 30,true);
-			g.setColor(Color.BLACK);
-			g.fillOval(x+5, y+10, 10, 10);
-			g.drawLine(x+10, y+15, x+10, y-5);
-			break;
-		case R:
-			g.fill3DRect(x-5, y+5, 30, 5,true);
-			g.draw3DRect(x, y+10, 20, 10,true);
-			g.fill3DRect(x-5, y+20, 30, 5,true);
-			g.setColor(Color.BLACK);
-			g.fillOval(x+5, y+10, 10, 10);
-			g.drawLine(x+10, y+15, x+35, y+15);
-			break;
-		case DOWN:
-			g.fill3DRect(x, y, 5, 30,true);
-			g.draw3DRect(x+5, y+5, 10, 20,true);
-			g.fill3DRect(x+15, y, 5, 30,true);
-			g.setColor(Color.BLACK);
-			g.fillOval(x+5, y+10, 10, 10);
-			g.drawLine(x+10, y+15, x+10, y+35);
-			break;
-		case LEFT:
-			g.fill3DRect(x-5, y+5, 30, 5,true);
-			g.draw3DRect(x, y+10, 20, 10,true);
-			g.fill3DRect(x-5, y+20, 30, 5,true);
-			g.setColor(Color.BLACK);
-			g.fillOval(x+5, y+10, 10, 10);
-			g.drawLine(x+10, y+15, x-10, y+15);
-			break;
-		}
-//    }	
-		g.setColor(c);
-	}
-		
-  public void move() {
-    switch (dir) {
-    case UP:
-      y -= speed;
-      break;
-    case R:
-      x += speed;
-      break;
-    case DOWN:
-      y += speed;
-      break;
-    case LEFT:
-      x -= speed;
-      break;
     }
   }
+  //TODO
+  public void randomDir () { 
+    Direction[] dirs = Direction.values();
+    if(step == 0) {
+      step = r.nextInt(10) + 5;
+      int n = r.nextInt(dirs.length-1);
+      dir = dirs[n];
+      fire();//TODO
+    }else {
+    step--;
+    }
+  }
+
+//  public Missiles fire() {
+//    if (missiles.size()<3) {
+//      return super.fire();
+//    }
+//    return null;
+//  }
 	
-}*/
+}

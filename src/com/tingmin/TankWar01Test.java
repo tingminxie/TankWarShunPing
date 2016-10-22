@@ -1,4 +1,6 @@
-/* make sure that each enemytank is a thread
+/* missile disappear when hit with each other
+ * tanks move within the panel
+ * fire tank
  * myTank can fire missiles when moving around.//not done
  */
 package com.tingmin;
@@ -44,16 +46,16 @@ public class TankWar01Test extends JFrame {
 
 class MainPanel extends JPanel implements Runnable {
   MyTank myTank;
-  Vector<MyTank> tanks = new Vector<MyTank>();
+  Vector<TankFather> enemyTanks = new Vector<TankFather>();
 	private static final int WIDTH = 800;
 	private static final int HEIGHT = 600;
 
 	public MainPanel() {
 //TODO
-		myTank = new MyTank(300,300,Direction.DOWN,Type.GOOD,OwnColor.RED,this);
+		myTank = new MyTank(500,300,Direction.DOWN,Type.GOOD,OwnColor.RED,this);
     for(int i=0;i<3;i++) {
-      MyTank tmp = new MyTank(100*(i+1),100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this); 
-      tanks.add(tmp);
+      TankFather tmp = new EnemyTank(100*(i+1),100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this); 
+      enemyTanks.add(tmp);
       new Thread(tmp).start();
     }
     
@@ -74,29 +76,47 @@ class MainPanel extends JPanel implements Runnable {
 		Color c = g.getColor();
 		g.setColor(Color.green);
 		g.fillRect(0, 0, WIDTH, HEIGHT);
-    myTank.draw(g);
-    for (int i=0;i<tanks.size();i++){
-      tanks.get(i).draw(g);
-      for(int j=0;j<tanks.get(i).getMissiles().size();j++){
-    	  Missiles m = tanks.get(i).getMissiles().get(j);
-    	  if(m.isLive()) {
-    		  m.draw(g); 
-    	  }else {
-    		  tanks.get(i).getMissiles().remove(j);
-    	  }
+//TODO make myTank to Vector<TankFather> myTanks 
+    if (myTank.isLive()) {
+      myTank.draw(g);
+      for(int i=0;i<myTank.getMissiles().size();i++) {
+        Missiles m = myTank.getMissiles().get(i);
+        if(!m.isLive()) {
+          myTank.getMissiles().remove(m);
+        } else {
+          if (enemyTanks.size() != 0) {
+            m.hitTanks(enemyTanks);
+            for(int j=0;j<enemyTanks.size();j++) {
+              for(int h=0;h<enemyTanks.get(j).getMissiles().size();h++){
+                Missiles tmp = enemyTanks.get(j).getMissiles().get(h);
+                m.hitMissile(tmp);//TODO
+              }
+            }
+          }
+        m.draw(g);
+        }
+      }
+    } 
+    for (int i=0;i<enemyTanks.size();i++){
+      TankFather tmp = enemyTanks.get(i);
+      if (!tmp.isLive()){
+        enemyTanks.remove(tmp);
+      }else {
+        tmp.draw(g);
+        for(int j=0;j<tmp.getMissiles().size();j++){
+    	    Missiles m = tmp.getMissiles().get(j);
+    	    if(!m.isLive()) {
+    		    tmp.getMissiles().remove(m);
+    	    }else {
+      		  m.draw(g);
+      		  m.hitTank(myTank);
+    		 // hitTanks();//good enemyTanks
+          }
+        }
       }
     }
 	  
-    for(int i=0;i<myTank.getMissiles().size();i++) {
-    	Missiles m = myTank.getMissiles().get(i);
-    	if(m.isLive()) {
-    		m.draw(g);
-    	}else {
-    		myTank.getMissiles().remove(i);
-    	}
-    }
-    
-    	g.setColor(c);
+    g.setColor(c);
 	}
 /*
   public void update(Graphics g) {
