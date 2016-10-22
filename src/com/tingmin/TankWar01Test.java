@@ -1,21 +1,17 @@
 /* 1.open and save game.
- * 2.pause and continue the game
- * 3.keep moving when key pressed,and not stop when fire enemy tank.  
- * 4.create class myTank.
- *//* 1.open and save game.
- * 2.next version: make three round of game
- * 3.next version:make bricks and walls
- * 4.next version:make blood box
- * 5.next version:make different enemyTank with different color and different life value
+ * 2.show file chooser dialog, do nothing when popdown Cancel button
  * 
+ * next version: make three round of game
+ * next version:make bricks and walls
+ * next version:make blood box
+ * next version:make different enemyTank with different color and different life value
+ * player can set game round itself from menu.
  */
 package com.tingmin;
 import javax.swing.*;
-
 import com.tingmin.TankFather.Direction;
 import com.tingmin.TankFather.OwnColor;
 import com.tingmin.TankFather.Type;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,7 +35,7 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
   JMenuItem newMI,openMI,saveMI,pauseMI,continueMI,exitMI;
   MainPanel p;
   StartPanel startPanel;
-  public static final int WIDTH = 1000;
+  public static final int WIDTH = 1200;
   public static final int HEIGHT = 800;
 
   public static void main(String[] args) {
@@ -93,7 +89,7 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
     this.add(startPanel);
     new Thread(startPanel).start();
     this.setTitle("TankWar");
-    this.setLocation(300, 100);
+    this.setLocation(50, 50);
     this.setSize(WIDTH, HEIGHT);
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setVisible(true);
@@ -123,111 +119,118 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
       new Thread(p).start();
       p.startEnemyThread();
   }
-
+//open a saved game
   public void oldGame() {
-      if(p!=null) {
-        this.remove(p);
-      }// this.add(p) later when p is resume by readObject() method
+// this.add(p) later when p is resume by readObject() method
       JFileChooser fileOpen = new JFileChooser();
       fileOpen.setDialogTitle("please select file to open ..");
-      fileOpen.showOpenDialog(null);
+      int result = fileOpen.showOpenDialog(null);
       fileOpen.setVisible(true);
+//TODO now
+//      fileOpen.addActionListener(this);
       FileInputStream fileRead = null;
-      DataInputStream dataRead = null;
+//      DataInputStream dataRead = null;
       ObjectInputStream objectRead = null;
-      try {
-        String fileName = fileOpen.getSelectedFile().getAbsolutePath();
-        int savedEnemyTankLife,savedEnemyKilled,savedMyTankLife;//savedBombNo 
-        Vector<EnemyTank> savedEnemyTanks = new Vector<EnemyTank>();
-        Vector<MyTank> savedMyTanks = new Vector<MyTank>();
-        Vector<Bomb> savedBombs = new Vector<Bomb>();
-
-        fileRead = new FileInputStream(fileName);
-        dataRead = new DataInputStream(fileRead);
-        objectRead = new ObjectInputStream(fileRead);
-//read object from file 
-        savedEnemyTankLife = dataRead.readInt();
-        savedEnemyKilled = dataRead.readInt();
-        savedMyTankLife = dataRead.readInt();
-        if (savedEnemyTankLife>0) {
-          for(int i=0;i<savedEnemyTankLife;i++) {
-            EnemyTank tmp = (EnemyTank)objectRead.readObject();
-            savedEnemyTanks.add(tmp); 
-            for(int j=0;j<tmp.missiles.size();j++) {
-              Missiles m = tmp.missiles.get(j);
-              new Thread(m).start();
+      String fileName = null;
+      /*if(result == JFileChooser.CANCEL_OPTION) {
+        System.out.println("cancel was selected");
+      }else*/ if(result == JFileChooser.APPROVE_OPTION){
+        try {
+          fileName = fileOpen.getSelectedFile().getAbsolutePath();
+            fileRead = new FileInputStream(fileName);
+  //          dataRead = new DataInputStream(fileRead);
+            objectRead = new ObjectInputStream(fileRead);
+            //read object from file 
+            MainPanel savedPanel = (MainPanel)objectRead.readObject();
+            if(p!=null) {
+              this.remove(p);
             }
-            new Thread(tmp).start();
-          }
-          p.enemyTanks = savedEnemyTanks;//1
-        }
-        if (savedMyTankLife>0) {
-          MyTank tmp = (MyTank)objectRead.readObject();
-          savedMyTanks.add(tmp);
-          p.myTanks = savedMyTanks;//5
-        }
-        
-        p.ENEMY_KILLED = savedEnemyKilled;//2
-//        p.bombs = savedBombs;//3 TODO no bombs being added after opening an old file
-        p.TANK_LIFE = savedMyTankLife;//4 
-
-        new Thread(p).start();
-         
-      }catch(Exception a) {
-        a.printStackTrace();
-      }finally{
-        try {
-    	    fileRead.close();
-    	    objectRead.close();
- 	      } catch (IOException e1) {
-		      e1.printStackTrace();
-	      }
-      }
-
-  }
-//try to save mainPanel as a object
-  public void saveGame() {
-      if (p == null) {
-        return;
-      } else {
-        JFileChooser fileSave = new JFileChooser();
-        fileSave.setDialogTitle("please select file to save ..");
-        fileSave.showSaveDialog(null);
-        fileSave.setVisible(true);
-        FileOutputStream fileWrite = null;
-        DataOutputStream dataWrite = null;
-        ObjectOutputStream objectWrite = null;
-        try {
-          String fileName = fileSave.getSelectedFile().getAbsolutePath();
-          fileWrite = new FileOutputStream(fileName);
-          dataWrite = new DataOutputStream(fileWrite);
-          objectWrite = new ObjectOutputStream(fileWrite);
-
-  // write object to selected file
-          dataWrite.writeInt(p.enemyTanks.size());
-          dataWrite.writeInt(p.ENEMY_KILLED);
-          dataWrite.writeInt(p.TANK_LIFE);
-          if(p.enemyTanks.size()>0) {
+            if(startPanel!=null) {
+              this.remove(startPanel);
+            }
+            this.p = savedPanel;
+            this.add(p);
+            this.setVisible(true);
+            this.addKeyListener((KeyListener) new MyKeyMonitor());
+            new Thread(p).start();
+            p.startEnemyThread();
             for(int i=0;i<p.enemyTanks.size();i++) {
-              EnemyTank tmp = p.enemyTanks.get(i);
-              objectWrite.writeObject(tmp);
+              EnemyTank eTank = p.enemyTanks.get(i);
+              for(int j=0;j<eTank.missiles.size();j++) {
+                Missiles m = eTank.missiles.get(j);
+                new Thread(m).start();
+              }
             }
-          }
-          if(p.TANK_LIFE>0) {
-            objectWrite.writeObject(p.myTanks.get(0));
-          }
-        }catch(Exception a) {
-          a.printStackTrace();
+        }catch(Exception e) {
+          e.printStackTrace();
         }finally{
           try {
-            fileWrite.close();
-            objectWrite.close();
+            //dataRead.close();
+            objectRead.close();
+            fileRead.close();
           } catch (IOException e1) {
             e1.printStackTrace();
           }
         }
       }
 
+  }
+//try to save mainPanel as a object
+  public void saveGame() {
+    if (p == null) {
+      return;
+    } else {
+      JFileChooser fileSave = new JFileChooser();
+      fileSave.setDialogTitle("please select file to save ..");
+      int result = fileSave.showSaveDialog(null);
+      fileSave.setVisible(true);
+      FileOutputStream fileWrite = null;
+//      DataOutputStream dataWrite = null;
+      ObjectOutputStream objectWrite = null;
+      String fileName = null;
+      /*if(result == JFileChooser.CANCEL_OPTION) {
+        System.out.println("cancel was selected");
+      }else */if(result == JFileChooser.APPROVE_OPTION){
+        try {
+          
+          fileName = fileSave.getSelectedFile().getAbsolutePath();
+          if(fileName==null) {
+            return;
+          }else {
+          fileWrite = new FileOutputStream(fileName);
+  //        dataWrite = new DataOutputStream(fileWrite);
+          objectWrite = new ObjectOutputStream(fileWrite);
+
+  // write object to selected file
+          objectWrite.writeObject(p);
+  /*
+          dataWrite.writeInt(p.enemyTanks.size());
+          dataWrite.writeInt(p.ENEMY_KILLED);
+          dataWrite.writeInt(p.myTankLife);
+          if(p.enemyTanks.size()>0) {
+            for(int i=0;i<p.enemyTanks.size();i++) {
+              EnemyTank tmp = p.enemyTanks.get(i);
+              objectWrite.writeObject(tmp);
+            }
+          }
+          if(p.myTankLife>0) {
+            objectWrite.writeObject(p.myTanks.get(0));
+          }
+  */
+          }
+        }catch(Exception e) {
+          e.printStackTrace();
+        }finally{
+          try {
+  //          dataWrite.close();
+            objectWrite.close();
+            fileWrite.close();
+          } catch (IOException e1) {
+            e1.printStackTrace();
+          }
+        }
+      }
+    }
   }
   public void pauseGame() {
     if (p == null) {
@@ -304,19 +307,19 @@ class StartPanel extends JPanel implements Runnable {
   }
 
 }
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 class MainPanel extends JPanel implements Runnable , Serializable {
 //  TankWar01Test mainFrame;
   Vector<MyTank> myTanks = new Vector<MyTank>(); 
   Vector<EnemyTank> enemyTanks = new Vector<EnemyTank>();
   Vector<Bomb>  bombs = new Vector<Bomb>();
-  int TANK_LIFE = 5;
+  int myTankLife = 5;
   public static final int ENEMYTANK_LIFE = 5;
   int ENEMY_KILLED = 0;
-  private static final int WIDTH = 800;
-  private static final int HEIGHT = 600;
+  static final int WIDTH = 800;
+  static final int HEIGHT = 600;
   int round = 0;//TODO try to make 3 round
+  private GameRecord gameRecord = new GameRecord(this);
 
   public MainPanel(/*TankWar01Test mainFrame*/int round){
 //    this.mainFrame = mainFrame;
@@ -324,24 +327,34 @@ class MainPanel extends JPanel implements Runnable , Serializable {
     launchPanel(round);
 //    this.setBackground(Color.green);
   }
+
+//construct each round of game for panel.
   public void launchPanel(int round) {
     switch(round) {
       case 1:
-        myTanks.add(new MyTank(500,300,Direction.DOWN,Type.GOOD,OwnColor.RED,this));
+        myTanks.add(new MyTank(500,300,Direction.UP,Type.GOOD,OwnColor.RED,this));
         for(int i=0;i<ENEMYTANK_LIFE;i++) {
           EnemyTank tmp = new EnemyTank(30*(i+1),100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this); 
           enemyTanks.add(tmp);
         }
         break;
+//TODO 
       case 2:
+        myTanks.add(new MyTank(500,300,Direction.DOWN,Type.GOOD,OwnColor.RED,this));
+        for(int i=0;i<ENEMYTANK_LIFE*2;i++) {
+          EnemyTank tmp = new EnemyTank(30*(i+1),100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this); 
+          enemyTanks.add(tmp);
+        }
         break;
       case 3:
         break;
     }
   }
   public void startEnemyThread() {
-    for(int i=0;i<ENEMYTANK_LIFE;i++) {
-      new Thread(enemyTanks.get(i)).start();
+    if (enemyTanks.size()>0) {
+      for(int i=0;i<enemyTanks.size();i++) {
+        new Thread(enemyTanks.get(i)).start();
+      }
     }
   }
   public void run() {
@@ -356,18 +369,9 @@ class MainPanel extends JPanel implements Runnable , Serializable {
   }
    public void paint(Graphics g){
 
-    Color c = g.getColor();
-    g.setColor(Color.yellow);
-    g.fillRect(0, 0, TankWar01Test.WIDTH, TankWar01Test.HEIGHT);
-    g.setColor(Color.green);
-    g.fillRect(0, 0, WIDTH, HEIGHT);
-    g.setColor(Color.red);
-    g.setFont(new Font("Times New Roman",Font.BOLD,20));
-    g.drawString("EnemyTank: " + enemyTanks.size(),810,25);
-    g.drawString("Enemykilled: " +ENEMY_KILLED,810,50);
-    g.drawString("MyTank: " + this.TANK_LIFE,810,75);
+    gameRecord.drawRecord(g);
 
-    if (this.TANK_LIFE>0) {
+    if (myTankLife>0) {
       MyTank myTank = myTanks.get(0);
       if (myTank.isLive()) {
         myTank.draw(g);
@@ -388,9 +392,9 @@ class MainPanel extends JPanel implements Runnable , Serializable {
           }
         }
       }else{
-        myTanks.add(new MyTank(myTank.oldX,myTank.oldY,Direction.DOWN,Type.GOOD,OwnColor.RED,this));
+        myTanks.add(new MyTank(myTank.oldX,myTank.oldY,Direction.UP,Type.GOOD,OwnColor.RED,this));
         myTanks.remove(0);
-        this.TANK_LIFE--;
+        myTankLife--;
       }
     }  else{ 
       g.setColor(Color.red);
@@ -422,9 +426,9 @@ class MainPanel extends JPanel implements Runnable , Serializable {
     }
     }else { 
 //TODO i win 
+      g.setColor(Color.red);
       g.setFont(new Font("Times New Roman",Font.BOLD,40));
       g.drawString("Congratulations!",200,200);
-//      mainFrame.restartGame();
     }
     if(bombs.size()!=0) {
         for(int i=0;i<bombs.size();i++) {
@@ -433,10 +437,9 @@ class MainPanel extends JPanel implements Runnable , Serializable {
         }
       }
     
-    g.setColor(c);
   }
   public void keyReleased(KeyEvent e) {
-    if (this.TANK_LIFE>0) {
+    if (myTankLife>0) {
       if (myTanks.get(0).pause ) { 
         return;
       }else {
@@ -446,7 +449,7 @@ class MainPanel extends JPanel implements Runnable , Serializable {
   }
 
   public void keyPressed(KeyEvent e) {
-    if (this.TANK_LIFE>0){ 
+    if (myTankLife>0){ 
       if (myTanks.get(0).pause ) { 
         return;
       }else {

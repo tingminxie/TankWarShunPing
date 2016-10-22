@@ -177,21 +177,21 @@ public class TankFather implements Runnable ,Serializable {
       x -= speed;
       break;
     }
-    if (x<0) {
+    if (x<=0) {
       x = 0;
     }
-    if (y<0) {
-      y = 0;
+    if (y<=-5) {
+      y = -5;
     }
-    if ((x + 30) >800) {
-      x = 770;
+    if ((x + 20) >=800) {
+      x = 780;
     }
-    if ((y + 70) >600) {
-      y = 530;
+    if ((y + 25) >=600) {
+      y = 575;
     }
 //TODO
     this.collideWith(panel.enemyTanks);
-    if(panel.TANK_LIFE > 0) {
+    if(panel.myTankLife > 0) {
       this.collideWith(panel.myTanks.get(0));
     }
   }
