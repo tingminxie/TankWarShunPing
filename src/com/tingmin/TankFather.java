@@ -16,7 +16,7 @@ public class TankFather implements Runnable ,Serializable {
   protected int oldY;
   protected boolean pause = false;
 
-  protected MainPanel panel;
+  //protected MainPanel panel;
 
   enum Direction {UP,R,DOWN,LEFT};
   protected Direction dir;
@@ -37,14 +37,15 @@ public class TankFather implements Runnable ,Serializable {
     this.dir = dir;
     this.type = type;
     this.ownColor = ownColor;
-  }
-
-  public TankFather(int x, int y, Direction dir, Type type,OwnColor ownColor, MainPanel panel) {
-    this(x,y,dir,type,ownColor);
-    this.panel = panel;
     this.oldX = x;
     this.oldY = y;
   }
+
+  /*public TankFather(int x, int y, Direction dir, Type type,OwnColor ownColor, MainPanel panel) {
+    this(x,y,dir,type,ownColor);
+    this.panel = panel;
+    
+  }*/
 
   public boolean isLive() {
     return live;
@@ -161,67 +162,11 @@ public class TankFather implements Runnable ,Serializable {
   }
 
   public void move() {
-    this.oldX = x;
-    this.oldY = y;
-    switch (dir) {
-    case UP:
-      y -= speed;
-      break;
-    case R:
-      x += speed;
-      break;
-    case DOWN:
-      y += speed;
-      break;
-    case LEFT:
-      x -= speed;
-      break;
-    }
-    if (x<=0) {
-      x = 0;
-    }
-    if (y<=-5) {
-      y = -5;
-    }
-    if ((x + 20) >=800) {
-      x = 780;
-    }
-    if ((y + 25) >=600) {
-      y = 575;
-    }
-//TODO
-    this.collideWith(panel.enemyTanks);
-    if(panel.myTankLife > 0) {
-      this.collideWith(panel.myTanks.get(0));
-    }
+    
   }
 
   public Missiles fire() {
-
-    int x = this.x;
-    int y = this.y;
-    
-    switch(dir) {
-    case UP:
-      x += 7;
-      y -= 8;
-      break;
-    case R:
-      x += 27;
-      y += 12;
-      break;
-    case DOWN:
-      x += 7;
-      y += 32;
-      break;
-    case LEFT:
-      x -= 13;
-      y += 12;
-      break;
-    } 
-    Missiles m = new Missiles(x,y,dir,this.panel);
-    missiles.add(m);
-    new Thread(m).start();
+	  Missiles m = null;
     return m;
     
   }

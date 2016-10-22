@@ -1,7 +1,4 @@
-/* 1.open and save game.
- * 2.show file chooser dialog, do nothing when popdown Cancel button
- * 
- * next version: make three round of game
+/* 1. make three round of game
  * next version:make bricks and walls
  * next version:make blood box
  * next version:make different enemyTank with different color and different life value
@@ -34,7 +31,11 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
   JMenu fileM,setM;
   JMenuItem newMI,openMI,saveMI,pauseMI,continueMI,exitMI;
   MainPanel p;
+  PanelRound2 p2;
+//  PanelRound3 p3;
   StartPanel startPanel;
+  int oldRound = 0;
+  boolean win;
   public static final int WIDTH = 1200;
   public static final int HEIGHT = 800;
 
@@ -96,23 +97,55 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
   }
   private class MyKeyMonitor extends KeyAdapter {
     public void keyPressed(KeyEvent e) {
-      p.keyPressed(e);
+      if (e.getKeyCode() == KeyEvent.VK_ENTER && win) {
+        nextRound();
+      }
+      if( e.getKeyChar() != KeyEvent.VK_ENTER && oldRound == 1 ) {
+        p.keyPressed(e);
+      }
+      if(e.getKeyCode() != KeyEvent.VK_ENTER && oldRound == 2) {
+        p2.keyPressed(e);
+      }
     }
     public void keyReleased(KeyEvent e) {
-      p.keyReleased(e);
+      if(p != null) {
+        p.keyReleased(e);
+      }else if (p2 != null) {
+        p2.keyReleased(e);
+      } 
     }
   } 
+  public void nextRound(){
+    if (this.oldRound == 1 ) {
+      this.remove(p);
+      this.p2 = new PanelRound2(this);
+      this.oldRound = p2.round;
+      p2.launchPanel();
+      this.win = false;
+      this.add(p2);
+      this.addKeyListener((KeyListener) new MyKeyMonitor());
+      this.setVisible(true);
+      new Thread(p2).start();
+      p2.startEnemyThread();
+    }   
+
+  }
 
 //TODO how to make a new round of game?
   public void newGame() {
       if (p!=null) {
         this.remove(p);
       }
-//TODO add 3 round
-      this.p = new MainPanel(1);
+      if(p2!=null) {
+    	  this.remove(p2);
+      }
       if (startPanel!=null) {
         this.remove(startPanel);
       }
+      this.p = new MainPanel(this);
+      p.launchPanel();
+      this.oldRound = p.round;
+      this.win = false;
       this.add(p);
       this.addKeyListener((KeyListener) new MyKeyMonitor());
       this.setVisible(true);
@@ -120,13 +153,16 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
       p.startEnemyThread();
   }
 //open a saved game
+  /*public void newRound() {
+    int round = p.round;
+    switch
+  }*/
   public void oldGame() {
 // this.add(p) later when p is resume by readObject() method
       JFileChooser fileOpen = new JFileChooser();
       fileOpen.setDialogTitle("please select file to open ..");
       int result = fileOpen.showOpenDialog(null);
       fileOpen.setVisible(true);
-//TODO now
 //      fileOpen.addActionListener(this);
       FileInputStream fileRead = null;
 //      DataInputStream dataRead = null;
@@ -281,181 +317,5 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class StartPanel extends JPanel implements Runnable {
-  int show = 0;
-  public void paint(Graphics g) {
-    Color c = g.getColor();
-    g.setColor(Color.gray);
-    g.fillRect(0, 0, 800, 600);
-    g.setColor(Color.green);
-    g.setFont(new Font("Times New Roman",Font.BOLD,40));
-    if(show%2 == 0) {
-      g.drawString("round 1",300,250);
-    }
-    g.setColor(c);
-  } 
-  public void run() {
-    while(true) {
-      try {
-        Thread.sleep(500);
-      }catch(Exception e) {
-        e.printStackTrace();
-      }
-      show++;
-      this.repaint();
-    }
-  }
 
-}
 ////////////////////////////////////////////////////////////////////////////////////////////
-class MainPanel extends JPanel implements Runnable , Serializable {
-//  TankWar01Test mainFrame;
-  Vector<MyTank> myTanks = new Vector<MyTank>(); 
-  Vector<EnemyTank> enemyTanks = new Vector<EnemyTank>();
-  Vector<Bomb>  bombs = new Vector<Bomb>();
-  int myTankLife = 5;
-  public static final int ENEMYTANK_LIFE = 5;
-  int ENEMY_KILLED = 0;
-  static final int WIDTH = 800;
-  static final int HEIGHT = 600;
-  int round = 0;//TODO try to make 3 round
-  private GameRecord gameRecord = new GameRecord(this);
-
-  public MainPanel(/*TankWar01Test mainFrame*/int round){
-//    this.mainFrame = mainFrame;
-    this.round = round;
-    launchPanel(round);
-//    this.setBackground(Color.green);
-  }
-
-//construct each round of game for panel.
-  public void launchPanel(int round) {
-    switch(round) {
-      case 1:
-        myTanks.add(new MyTank(500,300,Direction.UP,Type.GOOD,OwnColor.RED,this));
-        for(int i=0;i<ENEMYTANK_LIFE;i++) {
-          EnemyTank tmp = new EnemyTank(30*(i+1),100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this); 
-          enemyTanks.add(tmp);
-        }
-        break;
-//TODO 
-      case 2:
-        myTanks.add(new MyTank(500,300,Direction.DOWN,Type.GOOD,OwnColor.RED,this));
-        for(int i=0;i<ENEMYTANK_LIFE*2;i++) {
-          EnemyTank tmp = new EnemyTank(30*(i+1),100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this); 
-          enemyTanks.add(tmp);
-        }
-        break;
-      case 3:
-        break;
-    }
-  }
-  public void startEnemyThread() {
-    if (enemyTanks.size()>0) {
-      for(int i=0;i<enemyTanks.size();i++) {
-        new Thread(enemyTanks.get(i)).start();
-      }
-    }
-  }
-  public void run() {
-    while(true){
-      try{
-        Thread.sleep(50);
-      }catch (Exception e) {
-        e.printStackTrace();
-      }
-      repaint();
-    }
-  }
-   public void paint(Graphics g){
-
-    gameRecord.drawRecord(g);
-
-    if (myTankLife>0) {
-      MyTank myTank = myTanks.get(0);
-      if (myTank.isLive()) {
-        myTank.draw(g);
-        myTank.autoMove();
-        for(int i=0;i<myTank.getMissiles().size();i++) {
-          Missiles m = myTank.getMissiles().get(i);
-          if (enemyTanks.size() != 0) {
-             m.hitTanks(enemyTanks);
-             for(int j=0;j<enemyTanks.size();j++) {
-               Vector<Missiles> missiles = enemyTanks.get(j).getMissiles();
-               m.hitMissile(missiles);
-             }    
-          }
-          if(!m.isLive()) {
-             myTank.getMissiles().remove(m);
-          } else {
-             m.draw(g);
-          }
-        }
-      }else{
-        myTanks.add(new MyTank(myTank.oldX,myTank.oldY,Direction.UP,Type.GOOD,OwnColor.RED,this));
-        myTanks.remove(0);
-        myTankLife--;
-      }
-    }  else{ 
-      g.setColor(Color.red);
-      g.setFont(new Font("Times New Roman",Font.BOLD,50));
-      g.drawString("Game Over!",300,300);
-    }
-    if(enemyTanks.size()>0) {
-    for (int i=0;i<enemyTanks.size();i++){
-      EnemyTank tmp = enemyTanks.get(i);
-      if (!tmp.isLive()){
-        enemyTanks.remove(tmp);
-        ENEMY_KILLED ++;
-      }else {
-        tmp.draw(g);
-        for(int r=0;r<tmp.getMissiles().size();r++){
-          Missiles m = tmp.getMissiles().get(r);
-          for(int j=0;j<enemyTanks.size();j++){
-            Vector<Missiles> missiles = enemyTanks.get(j).getMissiles();
-            m.hitMissile(missiles);
-          }
-          m.hitTank(myTanks.get(0));
-          if(!m.isLive()) {
-            tmp.getMissiles().remove(m);
-          }else {
-            m.draw(g);
-          }
-        }
-      }
-    }
-    }else { 
-//TODO i win 
-      g.setColor(Color.red);
-      g.setFont(new Font("Times New Roman",Font.BOLD,40));
-      g.drawString("Congratulations!",200,200);
-    }
-    if(bombs.size()!=0) {
-        for(int i=0;i<bombs.size();i++) {
-        	
-          bombs.get(i).draw(g);
-        }
-      }
-    
-  }
-  public void keyReleased(KeyEvent e) {
-    if (myTankLife>0) {
-      if (myTanks.get(0).pause ) { 
-        return;
-      }else {
-        myTanks.get(0).keyReleased(e);
-      }
-    }
-  }
-
-  public void keyPressed(KeyEvent e) {
-    if (myTankLife>0){ 
-      if (myTanks.get(0).pause ) { 
-        return;
-      }else {
-         myTanks.get(0).keyPressed(e);
-      }
-    }
-  }
-
-}
