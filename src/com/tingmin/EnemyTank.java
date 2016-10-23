@@ -132,15 +132,12 @@ public class EnemyTank extends TankFather implements Runnable , Serializable{
 	    }
 	//TODO
 	    if(round == 1) {
-	    	
         this.collideWith(panel.enemyTanks);
         if(panel.myTankLife > 0) {
           this.collideWith(panel.myTanks.get(0));
         }
       }else
       if(round == 2) {
-    	  System.out.println("round in panel2: " + round);
-    	  System.out.println("panel2.enemyTankssize:"+ panel2.enemyTanks.size());
         this.collideWith(panel2.enemyTanks);
         if(panel2.myTankLife > 0) {
           this.collideWith(panel2.myTanks.get(0));

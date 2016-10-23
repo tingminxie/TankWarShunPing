@@ -30,11 +30,11 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
   JMenuBar frameMB;
   JMenu fileM,setM;
   JMenuItem newMI,openMI,saveMI,pauseMI,continueMI,exitMI;
+  StartPanel startPanel;
   MainPanel p;
   PanelRound2 p2;
 //  PanelRound3 p3;
-  StartPanel startPanel;
-  int oldRound = 0;
+  int round = 0;
   boolean win;
   public static final int WIDTH = 1200;
   public static final int HEIGHT = 800;
@@ -86,79 +86,82 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
     fileM.add(continueMI);
     fileM.add(exitMI);
 
+//create and add startPanel
     this.startPanel = new StartPanel();
     this.add(startPanel);
     new Thread(startPanel).start();
+
     this.setTitle("TankWar");
     this.setLocation(50, 50);
     this.setSize(WIDTH, HEIGHT);
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setVisible(true);
   }
+//monitor key event on frame
   private class MyKeyMonitor extends KeyAdapter {
     public void keyPressed(KeyEvent e) {
       if (e.getKeyCode() == KeyEvent.VK_ENTER && win) {
         nextRound();
       }
-      if( e.getKeyChar() != KeyEvent.VK_ENTER && oldRound == 1 ) {
+      if( e.getKeyChar() != KeyEvent.VK_ENTER && round == 1 ) {
         p.keyPressed(e);
       }
-      if(e.getKeyCode() != KeyEvent.VK_ENTER && oldRound == 2) {
+      if(e.getKeyCode() != KeyEvent.VK_ENTER && round == 2) {
         p2.keyPressed(e);
       }
     }
     public void keyReleased(KeyEvent e) {
-      if(p != null) {
+      if(round == 1) {
         p.keyReleased(e);
-      }else if (p2 != null) {
+      }else if (round == 2) {
         p2.keyReleased(e);
       } 
     }
   } 
+
   public void nextRound(){
-    if (this.oldRound == 1 ) {
+    if (this.round == 1 ) {
       this.remove(p);
       this.p2 = new PanelRound2(this);
-      this.oldRound = p2.round;
-      p2.launchPanel();
+      this.round = p2.round;//or this.round = 2;
       this.win = false;
       this.add(p2);
       this.addKeyListener((KeyListener) new MyKeyMonitor());
       this.setVisible(true);
+      //System.out.println("p2 is valid?" +p2.isValid());
+      p2.launchPanel();
       new Thread(p2).start();
       p2.startEnemyThread();
     }   
 
   }
 
-//TODO how to make a new round of game?
   public void newGame() {
-      if (p!=null) {
+      if (this.round == 1) {
         this.remove(p);
       }
-      if(p2!=null) {
+      if(this.round == 2) {
     	  this.remove(p2);
       }
-      if (startPanel!=null) {
+      if (this.round == 0) {
         this.remove(startPanel);
       }
       this.p = new MainPanel(this);
-      p.launchPanel();
-      this.oldRound = p.round;
+      this.round = p.round;
       this.win = false;
       this.add(p);
+//      p.revalidate();
+//      p.repaint();
       this.addKeyListener((KeyListener) new MyKeyMonitor());
       this.setVisible(true);
+//      System.out.println("MainPanel after startPanel:" + p);
+      p.launchPanel();
+//      System.out.println("is valid?" +p.isValid());
       new Thread(p).start();
       p.startEnemyThread();
   }
-//open a saved game
-  /*public void newRound() {
-    int round = p.round;
-    switch
-  }*/
+
   public void oldGame() {
-// this.add(p) later when p is resume by readObject() method
       JFileChooser fileOpen = new JFileChooser();
       fileOpen.setDialogTitle("please select file to open ..");
       int result = fileOpen.showOpenDialog(null);
@@ -177,24 +180,46 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
   //          dataRead = new DataInputStream(fileRead);
             objectRead = new ObjectInputStream(fileRead);
             //read object from file 
-            MainPanel savedPanel = (MainPanel)objectRead.readObject();
-            if(p!=null) {
-              this.remove(p);
-            }
-            if(startPanel!=null) {
+//            MainPanel savedPanel = (MainPanel)objectRead.readObject();
+            if(this.round == 0) {
               this.remove(startPanel);
             }
-            this.p = savedPanel;
-            this.add(p);
-            this.setVisible(true);
-            this.addKeyListener((KeyListener) new MyKeyMonitor());
-            new Thread(p).start();
-            p.startEnemyThread();
-            for(int i=0;i<p.enemyTanks.size();i++) {
-              EnemyTank eTank = p.enemyTanks.get(i);
-              for(int j=0;j<eTank.missiles.size();j++) {
-                Missiles m = eTank.missiles.get(j);
-                new Thread(m).start();
+            if(this.round == 1) {
+              this.remove(p);
+            }
+            if(this.round == 2) {
+              this.remove(p2);
+            }
+
+            if(objectRead.readObject().equals(p)) {
+              MainPanel savedPanel = (MainPanel)objectRead.readObject();
+              this.p = savedPanel;
+              this.add(p);
+              this.setVisible(true);
+              this.addKeyListener((KeyListener) new MyKeyMonitor());
+              new Thread(p).start();
+              p.startEnemyThread();
+              for(int i=0;i<p.enemyTanks.size();i++) {
+                EnemyTank eTank = p.enemyTanks.get(i);
+                for(int j=0;j<eTank.missiles.size();j++) {
+                  Missiles m = eTank.missiles.get(j);
+                  new Thread(m).start();
+                }
+              }
+            }else if (objectRead.readObject().equals(p2)){
+              PanelRound2 savedPanel = (PanelRound2)objectRead.readObject();
+              this.p2 = savedPanel;
+              this.add(p2);
+              this.setVisible(true);
+              this.addKeyListener((KeyListener) new MyKeyMonitor());
+              new Thread(p2).start();
+              p2.startEnemyThread();
+              for(int i=0;i<p2.enemyTanks.size();i++) {
+                EnemyTank eTank = p2.enemyTanks.get(i);
+                for(int j=0;j<eTank.missiles.size();j++) {
+                  Missiles m = eTank.missiles.get(j);
+                  new Thread(m).start();
+                }
               }
             }
         }catch(Exception e) {
@@ -209,11 +234,10 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
           }
         }
       }
-
   }
-//try to save mainPanel as a object
+
   public void saveGame() {
-    if (p == null) {
+    if (this.round == 0) {
       return;
     } else {
       JFileChooser fileSave = new JFileChooser();
@@ -233,12 +257,18 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
           if(fileName==null) {
             return;
           }else {
-          fileWrite = new FileOutputStream(fileName);
+            fileWrite = new FileOutputStream(fileName);
   //        dataWrite = new DataOutputStream(fileWrite);
-          objectWrite = new ObjectOutputStream(fileWrite);
+            objectWrite = new ObjectOutputStream(fileWrite);
 
   // write object to selected file
-          objectWrite.writeObject(p);
+            if(this.round == 1) {
+              objectWrite.writeObject(p);
+            }else if (this.round == 2) {
+              objectWrite.writeObject(p2);
+            }/*else if (this.round == 3) {
+              objectWrite.writeObject(p3);
+            }*/
   /*
           dataWrite.writeInt(p.enemyTanks.size());
           dataWrite.writeInt(p.ENEMY_KILLED);
@@ -269,9 +299,9 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
     }
   }
   public void pauseGame() {
-    if (p == null) {
+    if (this.round == 0) {
       return;
-    } else {
+    } else if (this.round == 1){
       for(int i=0;i<p.enemyTanks.size();i++) {
         p.enemyTanks.get(i).speed = 0;
         p.enemyTanks.get(i).pause = true;
@@ -280,12 +310,21 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
         p.myTanks.get(0).speed = 0;
         p.myTanks.get(0).pause = true;
       }
+    }else if (this.round == 2){
+      for(int i=0;i<p2.enemyTanks.size();i++) {
+        p2.enemyTanks.get(i).speed = 0;
+        p2.enemyTanks.get(i).pause = true;
+      }
+      if (p2.myTanks.size()>0) {
+        p2.myTanks.get(0).speed = 0;
+        p2.myTanks.get(0).pause = true;
+      }
     }
   }
   public void continueGame() {
-    if (p == null) {
+    if (this.round == 0) {
       return;
-    } else {
+    } else if (this.round == 1){
       for(int i=0;i<p.enemyTanks.size();i++) {
         p.enemyTanks.get(i).speed = 3;
         p.enemyTanks.get(i).pause = false;
@@ -294,11 +333,23 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
         p.myTanks.get(0).speed = 3;
         p.myTanks.get(0).pause = false;
       }
+    }else if (this.round == 2) {
+      for(int i=0;i<p2.enemyTanks.size();i++) {
+        p2.enemyTanks.get(i).speed = 3;
+        p2.enemyTanks.get(i).pause = false;
+      }
+      if (p2.myTanks.size()>0) {
+        p2.myTanks.get(0).speed = 3;
+        p2.myTanks.get(0).pause = false;
+      }
     }
   }
+
   public void exitGame() {
       System.exit(0);
   }
+
+// monitor action on menu item
   public void actionPerformed(ActionEvent e) {
     if(e.getActionCommand().equals("newgame")) {
       newGame();
@@ -316,6 +367,3 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////////////////

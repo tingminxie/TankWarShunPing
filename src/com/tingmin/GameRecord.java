@@ -14,6 +14,7 @@ public class GameRecord implements Serializable {
 	int round;
 	public GameRecord(int round,TankWar01Test mainFrame) {
 		this.round = round;
+		this.mainFrame = mainFrame;
 	}
 
 	public void drawRecord(Graphics g) {

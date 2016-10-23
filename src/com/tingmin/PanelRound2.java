@@ -30,15 +30,16 @@ public class PanelRound2 extends JPanel implements Runnable , Serializable{
 	  public PanelRound2(TankWar01Test mainFrame){
 	    this.mainFrame = mainFrame;
 //	    this.setBackground(Color.green);
-	    myTanks.add(new MyTank(500,300,Direction.UP,Type.GOOD,OwnColor.RED,1));
+	    myTanks.add(new MyTank(500,300,Direction.UP,Type.GOOD,OwnColor.RED,this.round));
 	    for(int i=0;i<ENEMYTANK_LIFE;i++) {
-	      EnemyTank tmp = new EnemyTank(30*(i+1),100,Direction.DOWN,Type.BAD,OwnColor.BLUE,1); 
+	      EnemyTank tmp = new EnemyTank(30*(i+1),100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this.round); 
 	      enemyTanks.add(tmp);
 	    }
 	    this.gameRecord = new GameRecord(this.round,mainFrame);
 	  }
     public void launchPanel(){
       myTanks.get(0).setPanel2(this);
+      //System.out.println("set panel2:" + this);
       for(int i=0;i<enemyTanks.size();i++) {
     	  enemyTanks.get(i).setPanel2(this);
       }

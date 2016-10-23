@@ -21,20 +21,21 @@ public class MainPanel extends JPanel implements Runnable , Serializable {
 	  int myTankLife = 5;
 	  public static final int ENEMYTANK_LIFE = 5;
 	  int ENEMY_KILLED = 0;
-	  static final int WIDTH = 800;
-	  static final int HEIGHT = 600;
-	  private GameRecord gameRecord; 
+	  public static final int WIDTH = 800;
+	  public static final int HEIGHT = 600;
+	  GameRecord gameRecord; 
 	  boolean win;
 	  int round = 1;
 	  public MainPanel(TankWar01Test mainFrame){
 	    this.mainFrame = mainFrame;
 //	    this.setBackground(Color.green);
-	    myTanks.add(new MyTank(500,300,Direction.UP,Type.GOOD,OwnColor.RED,1));
+	    //or 1 can be replaced by this.round
+	    myTanks.add(new MyTank(500,300,Direction.UP,Type.GOOD,OwnColor.RED,this.round));
 	    for(int i=0;i<ENEMYTANK_LIFE;i++) {
-	      EnemyTank tmp = new EnemyTank(30*(i+1),100,Direction.DOWN,Type.BAD,OwnColor.BLUE,1); 
+	      EnemyTank tmp = new EnemyTank(30*(i+1),100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this.round); 
 	      enemyTanks.add(tmp);
 	    }
-	         this.gameRecord = new GameRecord(this.round,mainFrame);
+	         this.gameRecord = new GameRecord(1,mainFrame);
 	  }
 
     public void launchPanel(){
@@ -42,6 +43,9 @@ public class MainPanel extends JPanel implements Runnable , Serializable {
       for(int i=0;i<enemyTanks.size();i++) {
     	  enemyTanks.get(i).setPanel(this);
       }
+    }
+    public String toString() {
+      return getClass().getName()+"["+paramString()+"]";
     }
 	  public void startEnemyThread() {
 	    if (enemyTanks.size()>0) {
@@ -51,7 +55,8 @@ public class MainPanel extends JPanel implements Runnable , Serializable {
 	    }
 	  }
 	  public void run() {
-	    while(true){
+//TODO
+	    while(true && !win){
 	      try{
 	        Thread.sleep(50);
 	      }catch (Exception e) {
@@ -90,6 +95,7 @@ public class MainPanel extends JPanel implements Runnable , Serializable {
 	          } else {
 	             m.draw(g);
 	          }
+	          
 	        }
 	      }else{
 	        myTanks.add(new MyTank(myTank.oldX,myTank.oldY,Direction.UP,Type.GOOD,OwnColor.RED,this.round));
