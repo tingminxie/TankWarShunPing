@@ -14,6 +14,8 @@ public class Missiles implements Runnable, Serializable {
   int speed = 5;
   Direction dir;
   MainPanel panel;
+  PanelRound2 panel2;
+  int round = 0;
   private boolean live = true;
   public static final int WIDTH = 5;
   public static final int HEIGHT = 5;
@@ -36,11 +38,20 @@ public class Missiles implements Runnable, Serializable {
   public void setY(int y) {
     this.y = y;
   }
+  public Missiles(int x, int y,Direction dir) {
+      this.x = x;
+      this.y = y;
+      this.dir = dir;
+    }
   public Missiles(int x, int y,Direction dir,MainPanel panel) {
-    this.x = x;
-    this.y = y;
-    this.dir = dir;
-    this.panel = panel;
+      this(x,y,dir);
+      this.panel = panel;
+      this.round = panel.round;
+    }
+  public Missiles(int x, int y,Direction dir,PanelRound2 panel2) {
+    this(x,y,dir);
+    this.panel2 = panel2;
+    this.round = panel2.round;
   }
   public Rectangle getRect() {
     return new Rectangle(x,y,WIDTH,HEIGHT);
@@ -62,8 +73,13 @@ public class Missiles implements Runnable, Serializable {
     if (this.isLive() && t.isLive() && this.getRect().intersects(t.getRect())) {
       this.setLive(false);
       t.setLive(false);
-      Bomb b = new Bomb(t.x,t.y,this.panel);
-      this.panel.bombs.add(b);
+      if (this.round == 1){
+        Bomb b = new Bomb(t.x,t.y,t.panel);
+        this.panel.bombs.add(b);
+      }else if (this.round == 2){
+        Bomb b = new Bomb(t.x,t.y,t.panel2);
+        this.panel2.bombs.add(b);
+      }
       return true;
     }
     return false;

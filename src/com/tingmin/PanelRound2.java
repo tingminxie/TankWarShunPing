@@ -39,7 +39,6 @@ public class PanelRound2 extends JPanel implements Runnable , Serializable{
 	  }
     public void launchPanel(){
       myTanks.get(0).setPanel2(this);
-      //System.out.println("set panel2:" + this);
       for(int i=0;i<enemyTanks.size();i++) {
     	  enemyTanks.get(i).setPanel2(this);
       }
@@ -53,7 +52,7 @@ public class PanelRound2 extends JPanel implements Runnable , Serializable{
 	    }
 	  }
 	  public void run() {
-	    while(true){
+	    while(true && !win){
 	      try{
 	        Thread.sleep(50);
 	      }catch (Exception e) {
@@ -71,7 +70,7 @@ public class PanelRound2 extends JPanel implements Runnable , Serializable{
 			    g.setColor(Color.green);
 			    g.fillRect(0, 0, WIDTH, HEIGHT);
 
-	   // gameRecord.drawRecord(g);
+	    gameRecord.drawRecord(g);
 
 	    if (myTankLife>0) {
 	      MyTank myTank = myTanks.get(0);
@@ -94,8 +93,9 @@ public class PanelRound2 extends JPanel implements Runnable , Serializable{
 	          }
 	        }
 	      }else{
-	        myTanks.add(new MyTank(myTank.oldX,myTank.oldY,Direction.UP,Type.GOOD,OwnColor.RED,this.round));
 	        myTanks.remove(0);
+	        myTanks.add(new MyTank(myTank.oldX,myTank.oldY,Direction.UP,Type.GOOD,OwnColor.RED,this.round));
+          myTanks.get(0).setPanel2(this);
 	        myTankLife--;
 	      }
 	    }  else{ 
@@ -129,7 +129,6 @@ public class PanelRound2 extends JPanel implements Runnable , Serializable{
 	    }else { 
 	//TODO i win 
 	      win = true;
-	      System.out.println("" + win);
 	      g.setColor(Color.red);
 	      g.setFont(new Font("Times New Roman",Font.BOLD,40));
 	      g.drawString("Congratulations!",200,200);

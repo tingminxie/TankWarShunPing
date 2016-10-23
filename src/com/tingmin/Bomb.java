@@ -15,18 +15,19 @@ public class Bomb implements Serializable {
   int y;
   boolean live = true;
   MainPanel panel;
+  PanelRound2 panel2;
+  int round = 0;
   public static final int TIMES = 8;
   Image image1,image2,image3,image4;
   
-  /*Image image1 = Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bomb1.png"));
-  Image image2 = Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bomb2.png"));
-  Image image3 = Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bomb3.png"));
-  Image image4 = Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bomb4.png"));
-  */
-  public Bomb(int x, int y, MainPanel panel) {
+  public Bomb(int x,int y) {
     this.x = x;
     this.y = y;
+  }
+  public Bomb(int x, int y, MainPanel panel) {
+    this(x,y);
     this.panel = panel;
+    this.round = panel.round;
     try{
       image1 = ImageIO.read(new File("bomb1.png"));
       image2 = ImageIO.read(new File("bomb2.png"));
@@ -37,6 +38,20 @@ public class Bomb implements Serializable {
       e.printStackTrace();
     }
   }
+  public Bomb(int x, int y, PanelRound2 panel2) {
+      this(x,y);
+      this.panel2 = panel2;
+      this.round = panel2.round;
+      try{
+        image1 = ImageIO.read(new File("bomb1.png"));
+        image2 = ImageIO.read(new File("bomb2.png"));
+        image3 = ImageIO.read(new File("bomb3.png"));
+        image4 = ImageIO.read(new File("bomb4.png"));
+        
+      }catch(Exception e) {
+        e.printStackTrace();
+      }
+    }
   public void draw(Graphics g) {
     Color c = g.getColor();
     for(int i=0;i<TIMES;i++) {
@@ -53,6 +68,10 @@ public class Bomb implements Serializable {
       g.drawImage(image4, x, y, 50, 50,null);
     }
     g.setColor(c);
-    panel.bombs.remove(this);
+    if(this.round ==1) {
+      panel.bombs.remove(this);
+    }else if(this.round == 2) {
+      panel2.bombs.remove(this);
+    }
   }
 }

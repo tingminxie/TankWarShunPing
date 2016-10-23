@@ -14,9 +14,6 @@ public class EnemyTank extends TankFather implements Runnable , Serializable{
   private static Random r = new Random();
   private int step = 5;
   protected Direction oldDir;
-  MainPanel panel;
-  PanelRound2 panel2;
-  int round;
   public EnemyTank(int x, int y, Direction dir, Type type,OwnColor ownColor) {
     super(x,y,dir,type,ownColor);
   }
@@ -95,7 +92,12 @@ public class EnemyTank extends TankFather implements Runnable , Serializable{
 	      y += 12;
 	      break;
 	    } 
-	    Missiles m = new Missiles(x,y,dir,this.panel);
+	    Missiles m = null;
+	    if(this.round == 1){
+	      m = new Missiles(x,y,dir,this.panel);
+	    }else if (this.round == 2) {
+	      m = new Missiles(x,y,dir,this.panel2);
+	    }
 	    missiles.add(m);
 	    new Thread(m).start();
 	    return m;

@@ -116,6 +116,7 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
       }else if (round == 2) {
         p2.keyReleased(e);
       } 
+      
     }
   } 
 
@@ -137,14 +138,14 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
   }
 
   public void newGame() {
-      if (this.round == 1) {
-        this.remove(p);
-      }
-      if(this.round == 2) {
-    	  this.remove(p2);
-      }
       if (this.round == 0) {
         this.remove(startPanel);
+      }else
+      if (this.round == 1) {
+        this.remove(p);
+      }else
+      if(this.round == 2) {
+    	  this.remove(p2);
       }
       this.p = new MainPanel(this);
       this.round = p.round;
@@ -154,9 +155,9 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
 //      p.repaint();
       this.addKeyListener((KeyListener) new MyKeyMonitor());
       this.setVisible(true);
+//      System.out.println("is valid?" +p.isValid());
 //      System.out.println("MainPanel after startPanel:" + p);
       p.launchPanel();
-//      System.out.println("is valid?" +p.isValid());
       new Thread(p).start();
       p.startEnemyThread();
   }

@@ -15,6 +15,10 @@ public class TankFather implements Runnable ,Serializable {
   protected int oldX;
   protected int oldY;
   protected boolean pause = false;
+  MainPanel panel;
+  PanelRound2 panel2;
+  //PanelRound3 panel3;
+  int round;
 
   //protected MainPanel panel;
 
