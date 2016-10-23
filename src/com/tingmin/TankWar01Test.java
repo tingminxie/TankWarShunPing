@@ -145,7 +145,7 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
         this.remove(p);
       }else
       if(this.round == 2) {
-    	  this.remove(p2);
+        this.remove(p2);
       }
       this.p = new MainPanel(this);
       this.round = p.round;
@@ -177,52 +177,63 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
       }else*/ if(result == JFileChooser.APPROVE_OPTION){
         try {
           fileName = fileOpen.getSelectedFile().getAbsolutePath();
-            fileRead = new FileInputStream(fileName);
+          fileRead = new FileInputStream(fileName);
   //          dataRead = new DataInputStream(fileRead);
-            objectRead = new ObjectInputStream(fileRead);
+          objectRead = new ObjectInputStream(fileRead);
             //read object from file 
 //            MainPanel savedPanel = (MainPanel)objectRead.readObject();
-            if(this.round == 0) {
-              this.remove(startPanel);
-            }
-            if(this.round == 1) {
-              this.remove(p);
-            }
-            if(this.round == 2) {
-              this.remove(p2);
-            }
-
-            if(objectRead.readObject().equals(p)) {
-              MainPanel savedPanel = (MainPanel)objectRead.readObject();
-              this.p = savedPanel;
-              this.add(p);
-              this.setVisible(true);
-              this.addKeyListener((KeyListener) new MyKeyMonitor());
-              new Thread(p).start();
-              p.startEnemyThread();
-              for(int i=0;i<p.enemyTanks.size();i++) {
-                EnemyTank eTank = p.enemyTanks.get(i);
-                for(int j=0;j<eTank.missiles.size();j++) {
-                  Missiles m = eTank.missiles.get(j);
-                  new Thread(m).start();
-                }
-              }
-            }else if (objectRead.readObject().equals(p2)){
-              PanelRound2 savedPanel = (PanelRound2)objectRead.readObject();
-              this.p2 = savedPanel;
-              this.add(p2);
-              this.setVisible(true);
-              this.addKeyListener((KeyListener) new MyKeyMonitor());
-              new Thread(p2).start();
-              p2.startEnemyThread();
-              for(int i=0;i<p2.enemyTanks.size();i++) {
-                EnemyTank eTank = p2.enemyTanks.get(i);
-                for(int j=0;j<eTank.missiles.size();j++) {
-                  Missiles m = eTank.missiles.get(j);
-                  new Thread(m).start();
-                }
+          if(this.round == 0) {
+            this.remove(startPanel);
+          }else
+          if(this.round == 1) {
+            this.remove(p);
+          }else
+          if(this.round == 2) {
+            this.remove(p2);
+          }
+          Object tmp = objectRead.readObject();
+//          System.out.println("tmp.getClass(): "+ tmp.getClass());
+//          System.out.println("tmp.getClass().getName()" + tmp.getClass().getName());
+//          System.out.println("tmp.getClass().getTypeName()"+ tmp.getClass().getTypeName());;
+          if(tmp instanceof MainPanel) {
+            System.out.println("enter round1 input:");
+            MainPanel savedPanel = (MainPanel)tmp;
+            this.p = savedPanel;
+            this.add(p);
+            this.round = p.round;
+            this.win = p.win;
+            this.setVisible(true);
+            p.launchPanel();
+            this.addKeyListener((KeyListener) new MyKeyMonitor());
+            new Thread(p).start();
+            p.startEnemyThread();
+            for(int i=0;i<p.enemyTanks.size();i++) {
+              EnemyTank eTank = p.enemyTanks.get(i);
+              for(int j=0;j<eTank.missiles.size();j++) {
+                Missiles m = eTank.missiles.get(j);
+                new Thread(m).start();
               }
             }
+          }else if (tmp instanceof PanelRound2){
+            System.out.println("enter round2 input:");
+            PanelRound2 savedPanel = (PanelRound2)tmp;
+            this.p2 = savedPanel;
+            this.add(p2);
+            this.round = p2.round;
+            this.win = p2.win;
+            this.setVisible(true);
+            p2.launchPanel();
+            this.addKeyListener((KeyListener) new MyKeyMonitor());
+            new Thread(p2).start();
+            p2.startEnemyThread();
+            for(int i=0;i<p2.enemyTanks.size();i++) {
+              EnemyTank eTank = p2.enemyTanks.get(i);
+              for(int j=0;j<eTank.missiles.size();j++) {
+                Missiles m = eTank.missiles.get(j);
+                new Thread(m).start();
+              }
+            }
+          }
         }catch(Exception e) {
           e.printStackTrace();
         }finally{
@@ -255,9 +266,9 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
         try {
           
           fileName = fileSave.getSelectedFile().getAbsolutePath();
-          if(fileName==null) {
-            return;
-          }else {
+//          if(fileName==null) {
+//            return;
+//          }else {
             fileWrite = new FileOutputStream(fileName);
   //        dataWrite = new DataOutputStream(fileWrite);
             objectWrite = new ObjectOutputStream(fileWrite);
@@ -284,7 +295,7 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
             objectWrite.writeObject(p.myTanks.get(0));
           }
   */
-          }
+//          }
         }catch(Exception e) {
           e.printStackTrace();
         }finally{
