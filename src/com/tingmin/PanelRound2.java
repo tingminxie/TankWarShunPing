@@ -38,7 +38,7 @@ public class PanelRound2 extends JPanel implements Runnable , Serializable{
     public PanelRound2(TankWar01Test mainFrame){
       this.mainFrame = mainFrame;
 //      this.setBackground(Color.green);
-      myTanks.add(new MyTank(500,300,Direction.UP,Type.GOOD,OwnColor.RED,this.round));
+      myTanks.add(new MyTank(30,30,Direction.UP,Type.GOOD,OwnColor.RED,this.round));
 //      EnemyTank tmp = new EnemyTank(100,100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this.round); 
 //      enemyTanks.add(tmp);
 //      new Thread(tmp).start();
@@ -76,8 +76,8 @@ public class PanelRound2 extends JPanel implements Runnable , Serializable{
           e.printStackTrace();
         }
         repaint();
-        if(newGame && times*50%1000 == 0 && enemyLife>0 ) {
-        EnemyTank tmp = new EnemyTank(50*enemyLife,50*enemyLife,Direction.DOWN,Type.BAD,OwnColor.BLUE,this.round); 
+        if(newGame && times*50%3000 == 0 && enemyLife>0 ) {
+        EnemyTank tmp = new EnemyTank(300,300,Direction.R,Type.BAD,OwnColor.BLUE,this.round); 
         enemyTanks.add(tmp);
         new Thread(tmp).start();
         tmp.setPanel2(this);

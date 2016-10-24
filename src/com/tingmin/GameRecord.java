@@ -27,9 +27,13 @@ public class GameRecord implements Serializable {
 		g.setFont(new Font("Times New Roman", Font.BOLD, 20));
 
 		if (round == 1) {
+			//show Total enemy
+			new EnemyTank(850, 20, Direction.UP, Type.BAD, OwnColor.BLUE).draw(g);
+			g.drawString("Total enemies:", 900, 40);
+			g.drawString("" + mainFrame.p.ENEMYTANK_LIFE, 1080, 40);
 			// show enemy left
-			new EnemyTank(850, 50, Direction.UP, Type.BAD, OwnColor.BLUE).draw(g);
-			g.drawString("" + mainFrame.p.enemyTanks.size(), 900, 70);
+			new EnemyTank(850, 60, Direction.UP, Type.BAD, OwnColor.BLUE).draw(g);
+			g.drawString("" + mainFrame.p.enemyTanks.size(), 900, 80);
 
 			// show total enemies killed in this round of game
 			g.drawString("Total Enemy killed: ", 80, 650);
@@ -41,9 +45,13 @@ public class GameRecord implements Serializable {
 			g.drawString("" + mainFrame.p.myTankLife, 900, 120);
 			g.setColor(c);
 		} else if (round == 2) {
+			//show Total enemy
+			new EnemyTank(850, 20, Direction.UP, Type.BAD, OwnColor.BLUE).draw(g);
+			g.drawString("Total enemies:", 900, 40);
+			g.drawString("" + mainFrame.p2.ENEMYTANK_LIFE, 1080, 40);
 			// show enemy left
-			new EnemyTank(850, 50, Direction.UP, Type.BAD, OwnColor.BLUE).draw(g);
-			g.drawString("" + mainFrame.p2.enemyTanks.size(), 900, 70);
+			new EnemyTank(850, 60, Direction.UP, Type.BAD, OwnColor.BLUE).draw(g);
+			g.drawString("" + mainFrame.p2.enemyTanks.size(), 900, 80);
 
 			// show total enemies killed in this round of game
 			g.drawString("Total Enemy killed: ", 80, 650);
