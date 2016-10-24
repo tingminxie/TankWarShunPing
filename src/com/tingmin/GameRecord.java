@@ -48,7 +48,7 @@ public class GameRecord implements Serializable {
 			// show total enemies killed in this round of game
 			g.drawString("Total Enemy killed: ", 80, 650);
 			new EnemyTank(30, 630, Direction.UP, Type.BAD, OwnColor.BLUE).draw(g);
-			g.drawString("" + mainFrame.p2.ENEMY_KILLED, 340, 650);
+			g.drawString("" + mainFrame.p2.enemyKilled, 340, 650);
 
 			// show my tank left
 			new MyTank(850, 100, Direction.UP, Type.GOOD, OwnColor.RED).draw(g);

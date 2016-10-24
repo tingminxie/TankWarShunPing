@@ -133,7 +133,7 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
       //System.out.println("p2 is valid?" +p2.isValid());
       p2.launchPanel();
       new Thread(p2).start();
-      p2.startEnemyThread();
+      //p2.startEnemyThread();
     }   
 
   }
@@ -219,6 +219,7 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
           }else if (tmp instanceof PanelRound2){
             PanelRound2 savedPanel = (PanelRound2)tmp;
             this.p2 = savedPanel;
+            p2.mainFrame = this;
             this.add(p2);
             this.round = p2.round;
             this.win = p2.win;

@@ -39,9 +39,9 @@ public class MainPanel extends JPanel implements Runnable , Serializable {
       this.mainFrame = mainFrame;
 //      this.setBackground(Color.green);
       myTanks.add(new MyTank(500,300,Direction.UP,Type.GOOD,OwnColor.RED,this.round));
-      EnemyTank tmp = new EnemyTank(100,100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this.round); 
-      enemyTanks.add(tmp);
-      new Thread(tmp).start();
+//      EnemyTank tmp = new EnemyTank(100,100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this.round); 
+//      enemyTanks.add(tmp);
+//      new Thread(tmp).start();
 /*
       for(int i=0;i<ENEMYTANK_LIFE;i++) {
         EnemyTank tmp = new EnemyTank(30*(i+1),100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this.round); 
@@ -53,10 +53,10 @@ public class MainPanel extends JPanel implements Runnable , Serializable {
 
     public void launchPanel(){
       myTanks.get(0).setPanel(this);
-      for(int i=0;i<enemyTanks.size();i++) {
-        enemyTanks.get(i).setPanel(this);
-        enemyTanks.get(i).setSpeed(5);
-      }
+//      for(int i=0;i<enemyTanks.size();i++) {
+//        enemyTanks.get(i).setPanel(this);
+//        enemyTanks.get(i).setSpeed(5);
+//      }
     //createToolTip().setTipText("hello");
     }
     public String toString() {
@@ -83,8 +83,8 @@ public class MainPanel extends JPanel implements Runnable , Serializable {
         e.printStackTrace();
       }
       repaint();
-      if(newGame && times*50%3000 == 0 && enemyLife>1 ) {
-        EnemyTank tmp = new EnemyTank(100,100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this.round); 
+      if(newGame && times*50%1000 == 0 && enemyLife>0) {
+        EnemyTank tmp = new EnemyTank(50*enemyLife,50*enemyLife,Direction.DOWN,Type.BAD,OwnColor.BLUE,this.round); 
         enemyTanks.add(tmp);
         new Thread(tmp).start();
         tmp.setPanel(this);
@@ -160,7 +160,7 @@ public class MainPanel extends JPanel implements Runnable , Serializable {
           }
         }
       }
-      }else { 
+      }else if(enemyKilled == ENEMYTANK_LIFE){ 
   // i win 
         win = true;
         mainFrame.win = true;
@@ -169,6 +169,10 @@ public class MainPanel extends JPanel implements Runnable , Serializable {
         g.setFont(new Font("Times New Roman",Font.BOLD,40));
         g.drawString("Congratulations!",200,200);
         g.drawString("press 'Enter' to next round of game!",80,300);
+      }else if(enemyKilled == 0) {
+    	g.setColor(Color.red);
+    	g.setFont(new Font("Times New Roman",Font.BOLD,40));
+        g.drawString("they are coming!!!!",200,200);
       }
       if(bombs.size()!=0) {
         for(int i=0;i<bombs.size();i++) {

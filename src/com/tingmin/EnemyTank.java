@@ -12,7 +12,7 @@ import com.tingmin.TankFather.Type;
 public class EnemyTank extends TankFather implements Runnable , Serializable{
   
   private static Random r = new Random();
-  private int step = 5;
+  private int step = 10;
   protected Direction oldDir;
   public EnemyTank(int x, int y, Direction dir, Type type,OwnColor ownColor) {
     super(x,y,dir,type,ownColor);
@@ -42,6 +42,7 @@ public class EnemyTank extends TankFather implements Runnable , Serializable{
 	  }*/
   /////////////////////////////////////////
   public void run() { 
+	 
     while(live) {
       try {
     Thread.sleep(50);
@@ -61,7 +62,7 @@ public class EnemyTank extends TankFather implements Runnable , Serializable{
   }else {
     Direction[] dirs = Direction.values();
     if(step == 0) {
-      step = r.nextInt(10) + 5;
+      step = r.nextInt(10) + 10;
       int n = r.nextInt(dirs.length);
       dir = dirs[n];
       fire();
