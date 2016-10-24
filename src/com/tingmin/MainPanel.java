@@ -20,50 +20,80 @@ public class MainPanel extends JPanel implements Runnable , Serializable {
     Vector<Bomb>  bombs = new Vector<Bomb>();
     int myTankLife = 5;
     public static final int ENEMYTANK_LIFE = 5;
-    int ENEMY_KILLED = 0;
+    int enemyKilled = 0;
     public static final int WIDTH = 800;
     public static final int HEIGHT = 600;
     GameRecord gameRecord; 
     boolean win;
     int round = 1;
-    public MainPanel(TankWar01Test mainFrame){
+    boolean newGame = true;
+    public boolean isNewGame() {
+		return newGame;
+	}
+
+	public void setNewGame(boolean newGame) {
+		this.newGame = newGame;
+	}
+
+	public MainPanel(TankWar01Test mainFrame){
       this.mainFrame = mainFrame;
 //      this.setBackground(Color.green);
       myTanks.add(new MyTank(500,300,Direction.UP,Type.GOOD,OwnColor.RED,this.round));
+      EnemyTank tmp = new EnemyTank(100,100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this.round); 
+      enemyTanks.add(tmp);
+      new Thread(tmp).start();
+/*
       for(int i=0;i<ENEMYTANK_LIFE;i++) {
         EnemyTank tmp = new EnemyTank(30*(i+1),100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this.round); 
         enemyTanks.add(tmp);
       }
-           this.gameRecord = new GameRecord(1,mainFrame);
+*/  
+         this.gameRecord = new GameRecord(1,mainFrame);
     }
 
     public void launchPanel(){
       myTanks.get(0).setPanel(this);
       for(int i=0;i<enemyTanks.size();i++) {
         enemyTanks.get(i).setPanel(this);
+        enemyTanks.get(i).setSpeed(5);
       }
+    //createToolTip().setTipText("hello");
     }
     public String toString() {
       return getClass().getName()+"["+paramString()+"]";
     }
-    public void startEnemyThread() {
+  
+  public void startEnemyThread() {
       if (enemyTanks.size()>0) {
         for(int i=0;i<enemyTanks.size();i++) {
           new Thread(enemyTanks.get(i)).start();
         }
       }
     }
-    public void run() {
-//TODO
-      while(true && !win){
-        try{
-          Thread.sleep(50);
-        }catch (Exception e) {
-          e.printStackTrace();
-        }
-        repaint();
+  
+  public void run() {
+	int times = 0;
+    int enemyLife = ENEMYTANK_LIFE;
+    
+    while(true){
+      try{
+        Thread.sleep(50);
+        times ++;
+      }catch (Exception e) {
+        e.printStackTrace();
+      }
+      repaint();
+      if(newGame && times*50%3000 == 0 && enemyLife>1 ) {
+        EnemyTank tmp = new EnemyTank(100,100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this.round); 
+        enemyTanks.add(tmp);
+        new Thread(tmp).start();
+        tmp.setPanel(this);
+        tmp.setSpeed(5);
+        times = 0;
+        enemyLife --;
       }
     }
+  }
      public void paint(Graphics g){
        Color c = g.getColor();
      //fill all frame with yellow
@@ -112,7 +142,7 @@ public class MainPanel extends JPanel implements Runnable , Serializable {
         EnemyTank tmp = enemyTanks.get(i);
         if (!tmp.isLive()){
           enemyTanks.remove(tmp);
-          ENEMY_KILLED ++;
+          enemyKilled ++;
         }else {
           tmp.draw(g);
           for(int r=0;r<tmp.getMissiles().size();r++){
@@ -134,6 +164,7 @@ public class MainPanel extends JPanel implements Runnable , Serializable {
   // i win 
         win = true;
         mainFrame.win = true;
+//        System.out.println(""+mainFrame.win + " newGame: " + newGame);
         g.setColor(Color.red);
         g.setFont(new Font("Times New Roman",Font.BOLD,40));
         g.drawString("Congratulations!",200,200);

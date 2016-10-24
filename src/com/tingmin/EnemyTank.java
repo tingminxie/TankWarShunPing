@@ -50,6 +50,7 @@ public class EnemyTank extends TankFather implements Runnable , Serializable{
       }
       randomDir();
       move();
+      
     }
   }
   /////////////////////////////////////////
@@ -104,6 +105,7 @@ public class EnemyTank extends TankFather implements Runnable , Serializable{
 	    
 	  }
   public void move() {
+	  //int speed = 5;
 	    this.oldX = x;
 	    this.oldY = y;
 	    switch (dir) {

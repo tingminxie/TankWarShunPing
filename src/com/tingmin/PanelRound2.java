@@ -26,21 +26,35 @@ public class PanelRound2 extends JPanel implements Runnable , Serializable{
     private GameRecord gameRecord;
     boolean win;
     int round = 2;
+    boolean newGame = true;
+    public boolean isNewGame() {
+		return newGame;
+	}
+
+	public void setNewGame(boolean newGame) {
+		this.newGame = newGame;
+	}
 
     public PanelRound2(TankWar01Test mainFrame){
       this.mainFrame = mainFrame;
 //      this.setBackground(Color.green);
       myTanks.add(new MyTank(500,300,Direction.UP,Type.GOOD,OwnColor.RED,this.round));
+      EnemyTank tmp = new EnemyTank(100,100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this.round); 
+      enemyTanks.add(tmp);
+      new Thread(tmp).start();
+/*
       for(int i=0;i<ENEMYTANK_LIFE;i++) {
         EnemyTank tmp = new EnemyTank(30*(i+1),100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this.round); 
         enemyTanks.add(tmp);
       }
-      this.gameRecord = new GameRecord(this.round,mainFrame);
+*/  
+    this.gameRecord = new GameRecord(this.round,mainFrame);
     }
     public void launchPanel(){
       myTanks.get(0).setPanel2(this);
       for(int i=0;i<enemyTanks.size();i++) {
         enemyTanks.get(i).setPanel2(this);
+        enemyTanks.get(i).setSpeed(5);
       }
     }
 
@@ -52,13 +66,25 @@ public class PanelRound2 extends JPanel implements Runnable , Serializable{
       }
     }
     public void run() {
+      int times = 0;
+      int enemyLife = ENEMYTANK_LIFE;
       while(true && !win){
         try{
           Thread.sleep(50);
+          times ++;
         }catch (Exception e) {
           e.printStackTrace();
         }
         repaint();
+        if(newGame && times*50%3000 == 0 && enemyLife>1 ) {
+        EnemyTank tmp = new EnemyTank(100,100,Direction.DOWN,Type.BAD,OwnColor.BLUE,this.round); 
+        enemyTanks.add(tmp);
+        new Thread(tmp).start();
+        tmp.setPanel2(this);
+        tmp.setSpeed(5);
+        times = 0;
+        enemyLife --;
+      }
       }
     }
      public void paint(Graphics g){
@@ -129,10 +155,11 @@ public class PanelRound2 extends JPanel implements Runnable , Serializable{
       }else { 
   //TODO i win 
         win = true;
+//        mainFrame.win = true;
         g.setColor(Color.red);
         g.setFont(new Font("Times New Roman",Font.BOLD,40));
         g.drawString("Congratulations!",200,200);
-        g.drawString("press 'Enter' to next round of game!",180,230);
+        g.drawString("You have completed all the round!",180,230);
       }
       if(bombs.size()!=0) {
           for(int i=0;i<bombs.size();i++) {

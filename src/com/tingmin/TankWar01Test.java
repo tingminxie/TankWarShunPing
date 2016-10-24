@@ -91,6 +91,7 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
     this.add(startPanel);
     new Thread(startPanel).start();
 
+    this.addKeyListener((KeyListener) new MyKeyMonitor());
     this.setTitle("TankWar");
     this.setLocation(50, 50);
     this.setSize(WIDTH, HEIGHT);
@@ -103,7 +104,7 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
       if (e.getKeyCode() == KeyEvent.VK_ENTER && win) {
         nextRound();
       }
-      if( e.getKeyChar() != KeyEvent.VK_ENTER && round == 1 ) {
+      if( e.getKeyCode() != KeyEvent.VK_ENTER && round == 1 ) {
         p.keyPressed(e);
       }
       if(e.getKeyCode() != KeyEvent.VK_ENTER && round == 2) {
@@ -127,7 +128,7 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
       this.round = p2.round;//or this.round = 2;
       this.win = false;
       this.add(p2);
-      this.addKeyListener((KeyListener) new MyKeyMonitor());
+//      this.addKeyListener((KeyListener) new MyKeyMonitor());
       this.setVisible(true);
       //System.out.println("p2 is valid?" +p2.isValid());
       p2.launchPanel();
@@ -153,13 +154,13 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
       this.add(p);
 //      p.revalidate();
 //      p.repaint();
-      this.addKeyListener((KeyListener) new MyKeyMonitor());
+//      this.addKeyListener((KeyListener) new MyKeyMonitor());
       this.setVisible(true);
 //      System.out.println("is valid?" +p.isValid());
 //      System.out.println("MainPanel after startPanel:" + p);
       p.launchPanel();
       new Thread(p).start();
-      p.startEnemyThread();
+//      p.startEnemyThread();
   }
 
   public void oldGame() {
@@ -196,26 +197,26 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
 //          System.out.println("tmp.getClass().getName()" + tmp.getClass().getName());
 //          System.out.println("tmp.getClass().getTypeName()"+ tmp.getClass().getTypeName());;
           if(tmp instanceof MainPanel) {
-            System.out.println("enter round1 input:");
             MainPanel savedPanel = (MainPanel)tmp;
             this.p = savedPanel;
-            this.add(p);
-            this.round = p.round;
-            this.win = p.win;
+            p.mainFrame = this;
+            this.add(this.p);
+            this.round = this.p.round;
+            this.win = this.p.win;
             this.setVisible(true);
-            p.launchPanel();
-            this.addKeyListener((KeyListener) new MyKeyMonitor());
-            new Thread(p).start();
-            p.startEnemyThread();
-            for(int i=0;i<p.enemyTanks.size();i++) {
-              EnemyTank eTank = p.enemyTanks.get(i);
+            this.p.launchPanel();
+            this.p.setNewGame(false);
+//            this.addKeyListener((KeyListener) new MyKeyMonitor());
+            new Thread(this.p).start();
+            this.p.startEnemyThread();
+            for(int i=0;i<this.p.enemyTanks.size();i++) {
+              EnemyTank eTank = this.p.enemyTanks.get(i);
               for(int j=0;j<eTank.missiles.size();j++) {
                 Missiles m = eTank.missiles.get(j);
                 new Thread(m).start();
               }
             }
           }else if (tmp instanceof PanelRound2){
-            System.out.println("enter round2 input:");
             PanelRound2 savedPanel = (PanelRound2)tmp;
             this.p2 = savedPanel;
             this.add(p2);
@@ -223,7 +224,8 @@ public class TankWar01Test extends JFrame  implements Serializable,ActionListene
             this.win = p2.win;
             this.setVisible(true);
             p2.launchPanel();
-            this.addKeyListener((KeyListener) new MyKeyMonitor());
+            p2.setNewGame(false);
+//            this.addKeyListener((KeyListener) new MyKeyMonitor());
             new Thread(p2).start();
             p2.startEnemyThread();
             for(int i=0;i<p2.enemyTanks.size();i++) {
